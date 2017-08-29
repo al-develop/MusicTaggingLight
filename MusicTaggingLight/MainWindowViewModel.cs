@@ -7,12 +7,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using DevExpress.Mvvm;
+using MusicTaggingLight.Logic;
+using TagLib;
 using File = TagLib.File;
 
 namespace MusicTaggingLight
 {
     public class MainWindowViewModel : ViewModelBase
     {
+        public TaggingLogic Logic { get; set; }
         public Func<string> SelectRootFolderFunc { get; set; }
         public Action ExitAction { get; set; }
 
@@ -22,32 +25,38 @@ namespace MusicTaggingLight
         public ICommand ExitCommand { get; set; }
 
 
-        private ObservableCollection<object> _musicFiles;
-        private object _selectedFile;
+        private ObservableCollection<MusicFileTag> _musicFileTags;
+        private MusicFileTag _selectedFile;
+        private string _rootPath;
 
-        public object SelectedFile
+        public string RootPath
+        {
+            get { return _rootPath; }
+            set { SetProperty(ref _rootPath, value, () => RootPath); }
+        }
+        public MusicFileTag SelectedFile
         {
             get { return _selectedFile; }
             set { SetProperty(ref _selectedFile, value, () => SelectedFile); }
         }
-        public ObservableCollection<object> MusicFiles
+        public ObservableCollection<MusicFileTag> MusicFileTags
         {
-            get { return _musicFiles; }
-            set { SetProperty(ref _musicFiles, value, () => MusicFiles); }
+            get { return _musicFileTags; }
+            set { SetProperty(ref _musicFileTags, value, () => MusicFileTags); }
         }
 
 
         public MainWindowViewModel()
         {
-            MusicFiles = new ObservableCollection<object>();
+            MusicFileTags = new ObservableCollection<MusicFileTag>();
+            Logic = new TaggingLogic();
             InitCommands();
-
         }
 
         private void InitCommands()
         {
             SelectRootFolderCommand = new DelegateCommand(SelectRootFolder);
-            SaveCommand = new AsyncCommand(Save);
+            SaveCommand = new DelegateCommand(Save);
             SearchOnlineCommand = new AsyncCommand(SearchOnline);
             ExitCommand = new DelegateCommand(() => ExitAction.Invoke());
 
@@ -55,44 +64,26 @@ namespace MusicTaggingLight
 
         private void SelectRootFolder()
         {
-            var root = SelectRootFolderFunc.Invoke();
-            if (String.IsNullOrEmpty(root))
+            RootPath = SelectRootFolderFunc.Invoke();
+            if (String.IsNullOrEmpty(RootPath))
                 return;
-
-            LoadMusicFilesFromRoot(root);
+            
+            List<MusicFileTag> loaded = Logic.LoadMusicFilesFromRoot(RootPath);
+            MusicFileTags = new ObservableCollection<MusicFileTag>(loaded.Where(w => w.IsValid()));
         }
 
         private Task SearchOnline()
         {
-            throw new NotImplementedException();
+            //Logic.GetOnlineData();
+            return null;
         }
 
-        private Task Save()
+        private void Save()
         {
-            throw new NotImplementedException();
-        }
-
-        private void LoadMusicFilesFromRoot(string root)
-        {
-            var subfolders = GetSubfolders(root);
-            foreach (var folder in subfolders)
+            foreach (var tag in MusicFileTags)
             {
-                var files = Directory.GetFiles(folder, "*.mp3");
-                foreach (var file in files)
-                {
-                    var tagInfo = TagLib.Mpeg.File.Create(file);
-                }
+                Logic.SaveTagToFile(tag);
             }
-        }
-
-        private IEnumerable<string> GetSubfolders(string sourcePath)
-        {
-            if (!Directory.Exists(sourcePath))
-                return new List<string>();
-
-            IEnumerable<string> subfolders = Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories)
-                                                      .Where(f => !Directory.EnumerateDirectories(f).Any());
-            return subfolders;
         }
     }
 }

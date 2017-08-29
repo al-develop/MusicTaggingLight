@@ -28,6 +28,7 @@ namespace MusicTaggingLight
             InitializeComponent();
             this.DataContext = vm = new MainWindowViewModel();
             vm.SelectRootFolderFunc = new Func<string>(SelectRootFolderDialog);
+            vm.ExitAction = new Action(() => Application.Current.Shutdown(0));
         }
 
         /// <summary>
@@ -40,6 +41,22 @@ namespace MusicTaggingLight
             if (dialog.ShowDialog() == true)
                 return dialog.SelectedPath;
             return "";
+        }
+
+        private void dgrFileTags_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
+        {
+            if (e.Column.Header.ToString().ToLower() == "albumcover")
+                e.Cancel = true;
+        }
+
+        private void dgrFileTags_DragEnter(object sender, DragEventArgs e)
+        {
+            // TODO: implement DragDrop
+        }
+
+        private void dgrFileTags_Drop(object sender, DragEventArgs e)
+        {
+            // TODO: implement DragDrop
         }
     }
 }
