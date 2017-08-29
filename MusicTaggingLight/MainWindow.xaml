@@ -298,7 +298,7 @@
         <TextBlock x:Name="txtProgramming_Copy1"
                    Grid.Row="4"
                    TextWrapping="Wrap"
-                   Text="DevExpress.Mvvm Ookii.Dialogs.Wpf TagLibSharp   Xceed.WPFToolkit MusicApiCollection"
+                   Text="DevExpress.Mvvm Ookii.Dialogs.Wpf TagLibSharp   Xceed.WPFToolkit"
                    Margin="149,47,0,0"
                    HorizontalAlignment="Left"
                    Width="118"
