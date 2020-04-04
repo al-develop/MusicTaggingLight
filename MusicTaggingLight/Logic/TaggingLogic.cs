@@ -15,27 +15,28 @@ namespace MusicTaggingLight.Logic
         internal List<MusicFileTag> LoadMusicFilesFromRoot(string root)
         {
             var musicFileTags = new List<MusicFileTag>();
-            var subfolders = this.GetSubfolders(root);
+            var foldersList = new List<string>();
+            foldersList.Add(root);
+            // add subfolders
+            foldersList.AddRange(this.GetSubfolders(root));
 
-            // add tags of files from root
-            var rootFiles = Directory.GetFiles(root, "*.mp3");
-            foreach (var file in rootFiles)
+            foreach (var folder in foldersList)
             {
-                var tagInfo = File.Create(file);
-                musicFileTags.Add(MusicFileTag.ConvertTagToMusicFileTag(tagInfo.Tag, tagInfo.Name));
-            }
-
-            foreach (var folder in subfolders)
-            {
-                var subfolderFiles = Directory.GetFiles(folder, "*.mp3");
-
-                // add tags of files from subfolders
-                foreach (var file in subfolderFiles)
+                var folderContent = Directory.GetFiles(folder, "*.mp3");
+                foreach (var file in folderContent)
                 {
-                    var tagInfo = File.Create(file);
-                    musicFileTags.Add(MusicFileTag.ConvertTagToMusicFileTag(tagInfo.Tag, tagInfo.Name));
+                    try
+                    {
+                        var tagInfo = File.Create(file);
+                        musicFileTags.Add(MusicFileTag.ConvertTagToMusicFileTag(tagInfo.Tag, tagInfo.Name));
+                    } catch (CorruptFileException e)
+                    {
+                        Console.WriteLine("error {0} in {1}", e.Message, file);
+                    }
                 }
+
             }
+            
             return musicFileTags;
         }
 
