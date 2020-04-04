@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using MusicTaggingLight.UI;
 using Ookii.Dialogs.Wpf;
 
 namespace MusicTaggingLight
@@ -29,6 +30,7 @@ namespace MusicTaggingLight
             this.DataContext = vm = new MainWindowViewModel();
             vm.SelectRootFolderFunc = new Func<string>(SelectRootFolderDialog);
             vm.ExitAction = new Action(() => Application.Current.Shutdown(0));
+            vm.ShowAboutWindowAction = new Action(this.ShowAboutWindow);
         }
 
         /// <summary>
@@ -42,12 +44,21 @@ namespace MusicTaggingLight
                 return dialog.SelectedPath;
             return "";
         }
+        private void ShowAboutWindow()
+        {
+            var about = new AboutWindow();
+            this.Opacity = 0.7;
+            bool? dialogActive = about.ShowDialog();
+            if (dialogActive == false)
+                this.Opacity = 1.0;
+        }
 
         private void dgrFileTags_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
         {
             if (e.Column.Header.ToString().ToLower() == "albumcover")
                 e.Cancel = true;
         }
+
 
         private void dgrFileTags_DragEnter(object sender, DragEventArgs e)
         {
@@ -57,6 +68,11 @@ namespace MusicTaggingLight
         private void dgrFileTags_Drop(object sender, DragEventArgs e)
         {
             // TODO: implement DragDrop
+        }
+
+        private void TxtNotification_ToolTipClosing(object sender, ToolTipEventArgs e)
+        {
+
         }
     }
 }

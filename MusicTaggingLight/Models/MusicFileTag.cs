@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using DevExpress.Mvvm;
 using TagLib;
 
-namespace MusicTaggingLight
+namespace MusicTaggingLight.Models
 {
     public class MusicFileTag : BindableBase
     {
@@ -93,7 +93,7 @@ namespace MusicTaggingLight
         }
 
         /// <summary>
-        /// Represeents the location on the drive for the music file.
+        /// Represents the location on the drive for the music file.
         /// </summary>
         public string File
         {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MusicTaggingLight.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace MusicTaggingLight.Logic
 {
     public class TaggingLogic
     {
-        internal List<MusicFileTag> LoadMusicFilesFromRoot(string root)
+        internal Result<List<MusicFileTag>> LoadMusicFilesFromRoot(string root)
         {
             var musicFileTags = new List<MusicFileTag>();
             var foldersList = new List<string>();
@@ -32,12 +33,13 @@ namespace MusicTaggingLight.Logic
                     } catch (CorruptFileException e)
                     {
                         Console.WriteLine("error {0} in {1}", e.Message, file);
+                        return new Result<List<MusicFileTag>>(file, Status.Error, e);
                     }
                 }
 
             }
-            
-            return musicFileTags;
+
+            return new Result<List<MusicFileTag>>(musicFileTags);
         }
 
         private IEnumerable<string> GetSubfolders(string sourcePath)
@@ -50,14 +52,15 @@ namespace MusicTaggingLight.Logic
             return subfolders;
         }
 
-        public void SaveTagToFile(MusicFileTag tag)
+        public Result SaveTagToFile(MusicFileTag tag)
         {
             if (String.IsNullOrEmpty(tag.File))
-                return;
+                return new Result("No File specified", Status.Error);
 
             File tagInfo = MusicFileTag.ConvertMusicFileTagToTag(tag);
             tagInfo.Save();
 
+            return new Result("", Status.Success);
         }
     }
 }
