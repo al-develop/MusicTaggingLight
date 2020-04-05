@@ -1,9 +1,11 @@
-﻿using System;
+﻿using MusicTaggingLight.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TagLib;
 using File = TagLib.File;
@@ -12,7 +14,7 @@ namespace MusicTaggingLight.Logic
 {
     public class TaggingLogic
     {
-        internal List<MusicFileTag> LoadMusicFilesFromRoot(string root)
+        internal Result<List<MusicFileTag>> LoadMusicFilesFromRoot(string root)
         {
             var musicFileTags = new List<MusicFileTag>();
             var foldersList = new List<string>();
@@ -20,9 +22,14 @@ namespace MusicTaggingLight.Logic
             // add subfolders
             foldersList.AddRange(this.GetSubfolders(root));
 
+            Regex reg = new Regex(@"^((?!\._).)*$");
+
             foreach (var folder in foldersList)
             {
-                var folderContent = Directory.GetFiles(folder, "*.mp3");
+                var folderContent = Directory.GetFiles(folder, "*.mp3")
+                    .Where(path => reg.IsMatch(path))
+                    .ToList();
+
                 foreach (var file in folderContent)
                 {
                     try
@@ -32,12 +39,13 @@ namespace MusicTaggingLight.Logic
                     } catch (CorruptFileException e)
                     {
                         Console.WriteLine("error {0} in {1}", e.Message, file);
+                        return new Result<List<MusicFileTag>>(file, Status.Error, e);
                     }
                 }
 
             }
-            
-            return musicFileTags;
+
+            return new Result<List<MusicFileTag>>(musicFileTags);
         }
 
         private IEnumerable<string> GetSubfolders(string sourcePath)
@@ -50,14 +58,15 @@ namespace MusicTaggingLight.Logic
             return subfolders;
         }
 
-        public void SaveTagToFile(MusicFileTag tag)
+        public Result SaveTagToFile(MusicFileTag tag)
         {
             if (String.IsNullOrEmpty(tag.File))
-                return;
+                return new Result("No File specified", Status.Error);
 
             File tagInfo = MusicFileTag.ConvertMusicFileTagToTag(tag);
             tagInfo.Save();
 
+            return new Result("", Status.Success);
         }
     }
 }

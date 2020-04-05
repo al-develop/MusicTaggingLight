@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using DevExpress.Mvvm;
 using TagLib;
 
-namespace MusicTaggingLight
+namespace MusicTaggingLight.Models
 {
     public class MusicFileTag : BindableBase
     {
@@ -93,7 +93,7 @@ namespace MusicTaggingLight
         }
 
         /// <summary>
-        /// Represeents the location on the drive for the music file.
+        /// Represents the location on the drive for the music file.
         /// </summary>
         public string File
         {
@@ -147,9 +147,9 @@ namespace MusicTaggingLight
             File tagInfo = TagLib.File.Create(musicTag.File);
 
             //tagInfo.Tag.Clear();
-            tagInfo.Tag.Performers = new string[] { musicTag.Artist };      // Sets the FirstPerformer
-            tagInfo.Tag.AlbumArtists = new string[] { musicTag.Artist };    // Sets the FirstArtist
-            tagInfo.Tag.Genres = new string[] { musicTag.Genre };           // Sets the FirstGenre
+            tagInfo.Tag.Performers = new string[] { musicTag.Artist ?? ""};      // Sets the FirstPerformer
+            tagInfo.Tag.AlbumArtists = new string[] { musicTag.Artist ?? "" };    // Sets the FirstArtist
+            tagInfo.Tag.Genres = new string[] { musicTag.Genre ?? "" };           // Sets the FirstGenre
             tagInfo.Tag.Album = musicTag.Album;
             tagInfo.Tag.Title = musicTag.Title;
             tagInfo.Tag.Comment = musicTag.Comment;

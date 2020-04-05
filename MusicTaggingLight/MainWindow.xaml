@@ -7,212 +7,239 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="Music Tagging Light"
-        Height="536.218"
-        Width="794"
-        MinHeight="536.218"
-        MinWidth="794">
+        Height="560"
+        Width="1028"
+        MinHeight="350"
+        MinWidth="540">
     <Window.Resources>
         <Style TargetType="Button">
             <Setter Property="Background"
                     Value="WhiteSmoke" />
         </Style>
     </Window.Resources>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="22"/>
-            <RowDefinition Height="57" />
-            <RowDefinition />
-        </Grid.RowDefinitions>
-        <Grid Grid.Row="0">
-            <Menu Name="mainMenu">
-                <MenuItem Header="_File">
-                    <MenuItem Header="Open _Folder"/>
-                    <MenuItem Header="Close Folder"/>
-                    <Separator/>
-                    <MenuItem Header="Exit"/>
-                </MenuItem>
-                <MenuItem Header="_Edit">
-                    <MenuItem Header="Preferences"/>
-                </MenuItem>
-                <MenuItem Header="_View">
-                    <MenuItem Header="View File _Details"/>
-                </MenuItem>
-                <MenuItem Header="_Tags">
-                    <MenuItem Header="Search Tags Online"/>
-                </MenuItem>
-                <MenuItem Header="_Help">
-                    <MenuItem Header="About"/>
-                </MenuItem>
-            </Menu>
-        </Grid>
-        <Grid Grid.Row="1">
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding SaveCommand}" Gesture="Ctrl+S" />
+        <KeyBinding Command="{Binding OpenAboutCommand}" Gesture="Ctrl+A" />
+        <KeyBinding Command="{Binding ExitCommand}" Gesture="Esc" />
+    </Window.InputBindings>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="57" />
+                <RowDefinition />
+                <RowDefinition Height="93" />
+                <RowDefinition Height="23" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Separator HorizontalAlignment="Left"
+                           Height="5"
+                           Grid.Row="0"
+                           Width="10"
+                           Margin="10,15,0,0"
+                           VerticalAlignment="Top" />
+                <Image Source="pack://application:,,,/Resources/musicrecord.png"
+                       HorizontalAlignment="Left"
+                       Height="16"
+                       Grid.Row="0"
+                       Margin="25,10,0,0"
+                       VerticalAlignment="Top"
+                       Width="16" />
+                <TextBlock Text="Source"
+                           Grid.Row="0"
+                           HorizontalAlignment="Left"
+                           Margin="46,9,0,0"
+                           VerticalAlignment="Top" />
+                <Separator Height="5"
+                           Grid.Row="0"
+                           Margin="87,15,10,0"
+                           VerticalAlignment="Top" />
+                <xctk:WatermarkTextBox VerticalAlignment="Top"
+                                       Watermark="Root Folder"
+                                       Text="{Binding RootPath, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                       HorizontalAlignment="Stretch"
+                                       Margin="10,28,80,0"
+                                       Height="22" />
+                <Button VerticalAlignment="Center"
+                        HorizontalAlignment="Right"
+                        Width="65"
+                        Command="{Binding SelectRootFolderCommand}"
+                        Height="22"
+                        Margin="0,28,10,7">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="pack://application:,,,/Resources/search.png"
+                               HorizontalAlignment="Left"
+                               Height="16"
+                               Margin="0,0,5,0"
+                               VerticalAlignment="Top"
+                               Width="16" />
+                        <TextBlock Text="..." />
+                    </StackPanel>
+                </Button>
+            </Grid>
             <Separator HorizontalAlignment="Left"
                        Height="5"
-                       Grid.Row="1"
                        Width="10"
-                       Margin="10,15,0,0"
-                       VerticalAlignment="Top" />
-            <Image Source="pack://application:,,,/Resources/toolbox.png"
+                       Margin="10,17,0,0"
+                       VerticalAlignment="Top"
+                       Grid.Row="1" />
+            <Image Source="pack://application:,,,/Resources/music.png"
                    HorizontalAlignment="Left"
-                   Height="16"
+                   Grid.Row="1"
                    Margin="25,10,0,0"
-                   VerticalAlignment="Top"
-                   Width="16" />
-            <TextBlock Text="Toolbox"
-                       HorizontalAlignment="Left"
-                       Margin="46,9,0,0"
-                       VerticalAlignment="Top" />
-
-            <Separator Height="5"
-                       Margin="93,15,10,0"
-                       VerticalAlignment="Top" />
-
-            <Button VerticalAlignment="Center"
-                    HorizontalAlignment="Left"
-                    Width="145"
-                    Command="{Binding SelectRootFolderCommand}"
-                    Height="22"
-                    Margin="10,28,0,7">
-                <StackPanel Orientation="Horizontal">
-                    <Image Source="pack://application:,,,/Resources/search.png"
-                           HorizontalAlignment="Left"
-                           Height="16"
-                           Margin="0,0,5,0"
-                           VerticalAlignment="Top"
-                           Width="16" />
-                    <TextBlock Text="Open Folder" />
-                </StackPanel>
-            </Button>
-
-            <Button VerticalAlignment="Top"
-                    Command="{Binding SearchOnlineCommand}"
-                    HorizontalAlignment="Left"
-                    Width="145"
-                    Height="22"
-                    Margin="172,28,0,0">
-                <StackPanel Orientation="Horizontal">
-                    <Image x:Name="image"
-                           Source="pack://application:,,,/Resources/www.png"
-                           HorizontalAlignment="Left"
-                           Height="16"
-                           Margin="0,0,5,0"
-                           VerticalAlignment="Top"
-                           Width="16" />
-                    <TextBlock Text="Search Online" />
-                </StackPanel>
-            </Button>
-
-            <Button VerticalAlignment="Top"
-                    HorizontalAlignment="Right"
-                    Width="145"
-                    Command="{Binding SaveCommand}"
-                    Height="22"
-                    Margin="0,28,10,0">
-                <StackPanel Orientation="Horizontal">
-                    <Image Source="pack://application:,,,/Resources/save.png"
-                           HorizontalAlignment="Left"
-                           Height="16"
-                           Margin="0,0,5,0"
-                           VerticalAlignment="Top"
-                           Width="16" />
-                    <TextBlock Text="Save Tags" />
-                </StackPanel>
-            </Button>
-        </Grid>
-        <Separator HorizontalAlignment="Left"
-                   Height="5"
-                   Width="10"
-                   Margin="10,17,0,0"
-                   VerticalAlignment="Top"
-                   Grid.Row="2" />
-        <Image Source="pack://application:,,,/Resources/music.png"
-               HorizontalAlignment="Left"
-               Grid.Row="2"
-               Margin="25,10,0,0"
-               Width="16"
-               Height="16"
-               VerticalAlignment="Top" />
-        <TextBlock Text="Loaded Files"
-                   HorizontalAlignment="Left"
-                   Margin="46,10,0,0"
-                   VerticalAlignment="Top"
-                   Grid.Row="2"
-                   Height="16"
-                   Width="66" />
-        <Separator Height="5"
-                   Margin="117,17,10,0"
-                   VerticalAlignment="Top"
-                   Grid.Row="2" />
-        <Grid Grid.Row="2"
-              Margin="10,31,10,10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="337*" />
-                <ColumnDefinition Width="2*" />
-                <ColumnDefinition Width="190*" />
-            </Grid.ColumnDefinitions>
-            <DataGrid Grid.Column="0"
-                      AllowDrop="True" DragDrop.DragEnter="dgrFileTags_DragEnter" DragDrop.Drop="dgrFileTags_Drop"
-                      SelectedItem="{Binding SelectedFile}" AutoGeneratingColumn="dgrFileTags_AutoGeneratingColumn" 
-                      CanUserAddRows="False" CanUserDeleteRows="False"
-                      AlternatingRowBackground="AliceBlue" x:Name="dgrFileTags"
-                      ItemsSource="{Binding MusicFileTags}"
-                      Margin="0,0,5,0">
-
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Title" Binding="{Binding Title}"/>
-                    <DataGridTextColumn Header="Artist" Binding="{Binding Artist}"/>
-                    <DataGridTextColumn Header="File" Binding="{Binding File}"/>
-                    <DataGridTextColumn Header="Genre" Binding="{Binding Genre}"/>
-                </DataGrid.Columns>
-                
-            </DataGrid>
-            <GridSplitter Grid.Column="1"
-                        ResizeDirection="Columns"
-                        ResizeBehavior="PreviousAndNext"
-                        Width="2" />
-            <xctk:PropertyGrid Margin="5,21,0,0"
-                               AutoGenerateProperties="False"
-                               ShowTitle="False"
-                               ShowSearchBox="False"
-                               ShowSummary="False"
-                               ShowAdvancedOptions="False"
-                               ShowSortOptions="False"
-                               SelectedObject="{Binding SelectedFile}"
-                               Grid.Column="2" >
-                <xctk:PropertyGrid.PropertyDefinitions>
-                    <xctk:PropertyDefinition TargetProperties="Title" />
-                    <xctk:PropertyDefinition TargetProperties="Artist" />
-                    <xctk:PropertyDefinition TargetProperties="Album" />
-                    <xctk:PropertyDefinition TargetProperties="Genre" />
-                    <xctk:PropertyDefinition TargetProperties="Year" />
-                    <xctk:PropertyDefinition TargetProperties="File" />
-                    <xctk:PropertyDefinition TargetProperties="Track" />
-                    <xctk:PropertyDefinition TargetProperties="Comment" />
-                </xctk:PropertyGrid.PropertyDefinitions>
-
-                <xctk:PropertyGrid.EditorDefinitions>
-                    <xctk:EditorTemplateDefinition TargetProperties="Comment">
-                        <xctk:EditorTemplateDefinition.EditingTemplate>
-                            <DataTemplate>
-                                <TextBox Text="{Binding Comment}" MinLines="4" MaxLines="4"/>
-                            </DataTemplate>
-                        </xctk:EditorTemplateDefinition.EditingTemplate>
-                    </xctk:EditorTemplateDefinition>
-                </xctk:PropertyGrid.EditorDefinitions>
-            </xctk:PropertyGrid>
-            <TextBlock x:Name="textBlock1"
-                       Grid.Column="2"
-                       HorizontalAlignment="Left"
-                       Margin="26,0,0,0"
-                       TextWrapping="Wrap"
-                       VerticalAlignment="Top"><Run Text="De" /><Run Text="tails" /></TextBlock>
-            <Image Source="Resources/details.png"
-                   HorizontalAlignment="Left"
-                   Height="16"
-                   VerticalAlignment="Top"
                    Width="16"
-                   Grid.Column="2"
-                   Margin="5,0,0,0" />
+                   Height="16"
+                   VerticalAlignment="Top" />
+            <TextBlock Text="Loaded Files"
+                       HorizontalAlignment="Left"
+                       Margin="46,10,0,0"
+                       VerticalAlignment="Top"
+                       Grid.Row="1"
+                       Height="16"
+                       Width="66" />
+            <Separator Height="5"
+                       Margin="117,17,10,0"
+                       VerticalAlignment="Top"
+                       Grid.Row="1" />
+            <Grid Grid.Row="1"
+                  Margin="10,31,10,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="337*" />
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="190*" />
+                </Grid.ColumnDefinitions>
+                <DataGrid Grid.Column="0"
+                          AllowDrop="True"
+                          DragDrop.DragEnter="dgrFileTags_DragEnter"
+                          DragDrop.Drop="dgrFileTags_Drop"
+                          SelectedItem="{Binding SelectedFile}"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          AlternatingRowBackground="AliceBlue"
+                          AutoGeneratingColumn="dgrFileTags_AutoGeneratingColumn"
+                          x:Name="dgrFileTags"
+                          ItemsSource="{Binding MusicFileTags}"
+                          Margin="0,0,5,0" />
+                <GridSplitter Grid.Column="1"
+                              ResizeDirection="Columns"
+                              ResizeBehavior="PreviousAndNext"
+                              Width="2" />
+                <xctk:PropertyGrid Margin="5,21,0,0"
+                                   ShowTitle="False"
+                                   ShowSearchBox="False"
+                                   ShowSummary="False"
+                                   ShowAdvancedOptions="False"
+                                   ShowSortOptions="False"
+                                   SelectedObject="{Binding SelectedFile}"
+                                   Grid.Column="2" />
+                <TextBlock x:Name="textBlock1"
+                           Grid.Column="2"
+                           HorizontalAlignment="Left"
+                           Margin="26,0,0,0"
+                           TextWrapping="Wrap"
+                           VerticalAlignment="Top"><Run Text="De" /><Run Text="tails" /></TextBlock>
+                <Image Source="Resources/details.png"
+                       HorizontalAlignment="Left"
+                       Height="16"
+                       VerticalAlignment="Top"
+                       Width="16"
+                       Grid.Column="2"
+                       Margin="5,0,0,0" />
+            </Grid>
+            <Grid Grid.Row="2"
+                  VerticalAlignment="Top">
+                <Separator HorizontalAlignment="Left"
+                           Height="5"
+                           Width="10"
+                           Margin="10,3,0,0"
+                           VerticalAlignment="Top" />
+                <Image Source="pack://application:,,,/Resources/toolbox.png"
+                       HorizontalAlignment="Left"
+                       Height="16"
+                       Margin="25,-2,0,0"
+                       VerticalAlignment="Top"
+                       Width="16" />
+                <TextBlock Text="Toolbox"
+                           HorizontalAlignment="Left"
+                           Margin="46,-2,0,0"
+                           VerticalAlignment="Top" />
+                <Separator Height="5"
+                           Margin="93,3,10,0"
+                           VerticalAlignment="Top" />
+                <Button Command="{Binding SearchOnlineCommand}"
+                        VerticalAlignment="Top"
+                        HorizontalAlignment="Left"
+                        Width="117"
+                        Height="23"
+                        Margin="10,20,0,10">
+                    <StackPanel Orientation="Horizontal">
+                        <Image x:Name="image"
+                               Source="pack://application:,,,/Resources/www.png"
+                               HorizontalAlignment="Left"
+                               Height="16"
+                               Margin="0,0,5,0"
+                               VerticalAlignment="Top"
+                               Width="16" />
+                        <TextBlock Text="Search Online" />
+                    </StackPanel>
+                </Button>
+                <Button Command="{Binding SaveCommand}"
+                        VerticalAlignment="Top"
+                        HorizontalAlignment="Left"
+                        Width="117"
+                        Height="23"
+                        Margin="140,20,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="pack://application:,,,/Resources/save.png"
+                               HorizontalAlignment="Left"
+                               Height="16"
+                               Margin="0,0,5,0"
+                               VerticalAlignment="Top"
+                               Width="16" />
+                        <TextBlock Text="Save Tags" />
+                    </StackPanel>
+                </Button>
+                <Button Command="{Binding OpenAboutCommand}"
+                        VerticalAlignment="Top"
+                        HorizontalAlignment="Left"
+                        Margin="10,50,0,0"
+                        Width="117"
+                        Height="23">
+                    <StackPanel Orientation="Horizontal">
+                        <Image x:Name="image1"
+                               Source="Resources/info16.png"
+                               HorizontalAlignment="Left"
+                               Height="16"
+                               Margin="0,0,5,0"
+                               VerticalAlignment="Top"
+                               Width="16" />
+                        <TextBlock Text="About" />
+                    </StackPanel>
+                </Button>
+                <Button Command="{Binding ExitCommand}"
+                        VerticalAlignment="Top"
+                        HorizontalAlignment="Left"
+                        Height="23"
+                        Margin="140,50,0,0"
+                        Width="117">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="Resources/shutdown.png"
+                               HorizontalAlignment="Left"
+                               Height="16"
+                               Margin="0,0,5,0"
+                               VerticalAlignment="Top"
+                               Width="16" />
+                        <TextBlock Text="Exit" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+            
+            <StatusBar VerticalAlignment="Bottom"
+                       Background="WhiteSmoke"
+                       Grid.Row="3">
+                <StatusBarItem>
+                    <TextBlock x:Name="txtNotification"
+                               Text="{Binding NotificationText}"
+                               Foreground="{Binding NotificationColor}" />
+                </StatusBarItem>
+            </StatusBar>
         </Grid>
-    </Grid>
 </Window>
