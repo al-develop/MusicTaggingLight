@@ -69,10 +69,5 @@ namespace MusicTaggingLight
         {
             // TODO: implement DragDrop
         }
-
-        private void TxtNotification_ToolTipClosing(object sender, ToolTipEventArgs e)
-        {
-
-        }
     }
 }

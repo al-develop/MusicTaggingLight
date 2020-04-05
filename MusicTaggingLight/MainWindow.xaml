@@ -7,7 +7,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="Music Tagging Light"
-        Height="533"
+        Height="560"
         Width="1028"
         MinHeight="350"
         MinWidth="540">
@@ -17,7 +17,11 @@
                     Value="WhiteSmoke" />
         </Style>
     </Window.Resources>
-
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding SaveCommand}" Gesture="Ctrl+S" />
+        <KeyBinding Command="{Binding OpenAboutCommand}" Gesture="Ctrl+A" />
+        <KeyBinding Command="{Binding ExitCommand}" Gesture="Esc" />
+    </Window.InputBindings>
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="57" />
