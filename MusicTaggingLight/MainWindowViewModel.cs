@@ -45,7 +45,6 @@ namespace MusicTaggingLight
             set { SetProperty(ref _musicFileTags, value, () => MusicFileTags); }
         }
 
-
         public MainWindowViewModel()
         {
             MusicFileTags = new ObservableCollection<MusicFileTag>();
