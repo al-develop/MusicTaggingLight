@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TagLib;
 using File = TagLib.File;
@@ -21,9 +22,14 @@ namespace MusicTaggingLight.Logic
             // add subfolders
             foldersList.AddRange(this.GetSubfolders(root));
 
+            Regex reg = new Regex(@"^((?!\._).)*$");
+
             foreach (var folder in foldersList)
             {
-                var folderContent = Directory.GetFiles(folder, "*.mp3");
+                var folderContent = Directory.GetFiles(folder, "*.mp3")
+                    .Where(path => reg.IsMatch(path))
+                    .ToList();
+
                 foreach (var file in folderContent)
                 {
                     try
