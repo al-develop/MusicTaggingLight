@@ -111,6 +111,12 @@ namespace MusicTaggingLight.Models
             this.Status = status;
         }
 
+        public Result(T data, Status status)
+        {
+            this.Data = data;
+            this.Status = status;
+        }
+
         public Result(string message, Status status, Exception exception)
         {
             this.Message = message;

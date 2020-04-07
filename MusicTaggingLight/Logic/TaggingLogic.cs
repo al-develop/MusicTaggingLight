@@ -36,16 +36,46 @@ namespace MusicTaggingLight.Logic
                     {
                         var tagInfo = File.Create(file);
                         musicFileTags.Add(MusicFileTag.ConvertTagToMusicFileTag(tagInfo.Tag, tagInfo.Name));
-                    } catch (CorruptFileException e)
+                    } 
+                    catch (CorruptFileException e)
                     {
-                        Console.WriteLine("error {0} in {1}", e.Message, file);
-                        return new Result<List<MusicFileTag>>(file, Status.Error, e);
+                        return HandleError(file, e);
                     }
                 }
 
             }
 
-            return new Result<List<MusicFileTag>>(musicFileTags);
+            return new Result<List<MusicFileTag>>(musicFileTags, Status.Success);
+        }
+
+        internal Result<List<MusicFileTag>> LoadMusicFilesFromList(List<string> folderContent)
+        {
+            var musicFileTags = new List<MusicFileTag>();
+            foreach (var file in folderContent)
+            {
+                try
+                {
+                    // make sure only *.mp3 files are processed
+                    FileInfo info = new FileInfo(file);
+                    if (info.Extension != ".mp3")
+                        continue;
+
+                    var tagInfo = File.Create(file);
+                    musicFileTags.Add(MusicFileTag.ConvertTagToMusicFileTag(tagInfo.Tag, tagInfo.Name));
+                }
+                catch (CorruptFileException e)
+                {
+                    return HandleError(file, e);
+                }
+            }
+
+            return new Result<List<MusicFileTag>>(musicFileTags, Status.Success);
+        }
+
+        private static Result<List<MusicFileTag>> HandleError(string file, CorruptFileException e)
+        {
+            Console.WriteLine("error {0} in {1}", e.Message, file);
+            return new Result<List<MusicFileTag>>(file, Status.Error, e);
         }
 
         private IEnumerable<string> GetSubfolders(string sourcePath)
@@ -53,8 +83,8 @@ namespace MusicTaggingLight.Logic
             if (!Directory.Exists(sourcePath))
                 return new List<string>();
 
-            IEnumerable<string> subfolders = Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories)
-                                                      .Where(f => !Directory.EnumerateDirectories(f).Any());
+            IEnumerable<string> subfolders = Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories);
+                                                      //.Where(f => !Directory.EnumerateDirectories(f).Any());
             return subfolders;
         }
 

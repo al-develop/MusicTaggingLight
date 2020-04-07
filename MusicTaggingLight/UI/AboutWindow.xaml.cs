@@ -23,5 +23,15 @@ namespace MusicTaggingLight.UI
         {
             InitializeComponent();
         }
+
+        private void TxtIcons_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            System.Diagnostics.Process.Start(txtIcons.Text);
+        }
+
+        private void TxtGithub_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            System.Diagnostics.Process.Start(txtGithub.Text);
+        }
     }
 }

@@ -13,10 +13,10 @@ namespace MusicTaggingLight.Models
         private string _artist;
         private string _album;
         private string _genre;
-        private string _year;
+        private uint _year;
         private string _title;
         private string _comment;
-        private string _track;
+        private uint _track;
         private string _file;
 
         private byte[] _albumCover;
@@ -32,7 +32,7 @@ namespace MusicTaggingLight.Models
         /// <summary>
         /// String, containing the track number of the music file (ID3 Tag)
         /// </summary>
-        public string Track
+        public uint Track
         {
             get { return _track; }
             set { SetProperty(ref _track, value, () => Track); }
@@ -77,7 +77,7 @@ namespace MusicTaggingLight.Models
         /// <summary>
         /// String, containing the release year of the music file (ID3 Tag)
         /// </summary>
-        public string Year
+        public uint Year
         {
             get { return _year; }
             set { SetProperty(ref _year, value, () => Year); }
@@ -112,9 +112,7 @@ namespace MusicTaggingLight.Models
             if (String.IsNullOrEmpty(Artist)
                 && String.IsNullOrEmpty(Album)
                 && String.IsNullOrEmpty(Title)
-                && (String.IsNullOrEmpty(Year) || Year == "0")
                 && String.IsNullOrEmpty(Genre)
-                && (String.IsNullOrEmpty(Track) || Year == "0")
                 && String.IsNullOrEmpty(Comment))
                 isValid = false;
 
@@ -134,10 +132,10 @@ namespace MusicTaggingLight.Models
             tmp.Artist = tag.FirstPerformer;
             tmp.Album = tag.Album;
             tmp.Genre = tag.FirstGenre;
-            tmp.Year = tag.Year.ToString();
+            tmp.Year = tag.Year;
             tmp.Title = tag.Title;
             tmp.Comment = tag.Comment;
-            tmp.Track = tag.Track.ToString();
+            tmp.Track = tag.Track;
             tmp.File = filePath;
             return tmp;
         }
@@ -147,24 +145,15 @@ namespace MusicTaggingLight.Models
             File tagInfo = TagLib.File.Create(musicTag.File);
 
             //tagInfo.Tag.Clear();
-            tagInfo.Tag.Performers = new string[] { musicTag.Artist ?? ""};      // Sets the FirstPerformer
+            tagInfo.Tag.Performers = new string[] { musicTag.Artist ?? ""};       // Sets the FirstPerformer
             tagInfo.Tag.AlbumArtists = new string[] { musicTag.Artist ?? "" };    // Sets the FirstArtist
             tagInfo.Tag.Genres = new string[] { musicTag.Genre ?? "" };           // Sets the FirstGenre
             tagInfo.Tag.Album = musicTag.Album;
             tagInfo.Tag.Title = musicTag.Title;
             tagInfo.Tag.Comment = musicTag.Comment;
 
-            int tmpYear = 0;
-            int tmpTrack = 0;
-
-            Int32.TryParse(musicTag.Year, out tmpYear);
-            if (tmpYear > 0)
-                tagInfo.Tag.Year = (uint)tmpYear;
-
-            Int32.TryParse(musicTag.Track, out tmpTrack);
-            if (tmpTrack > 0)
-                tagInfo.Tag.Track = (uint)tmpTrack;
-
+            tagInfo.Tag.Year = musicTag.Year;
+            tagInfo.Tag.Track = musicTag.Track;
 
             return tagInfo;
         }
