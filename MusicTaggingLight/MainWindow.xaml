@@ -261,6 +261,38 @@
                     <TextBlock Text="Exit" />
                 </StackPanel>
             </Button>
+            <Button Command="{Binding ExitCommand}"
+                VerticalAlignment="Top"
+                HorizontalAlignment="Left"
+                Height="23"
+                Margin="140,50,0,0"
+                Width="117">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="Resources/shutdown.png"
+                        HorizontalAlignment="Left"
+                        Height="16"
+                        Margin="0,0,5,0"
+                        VerticalAlignment="Top"
+                        Width="16" />
+                    <TextBlock Text="Exit" />
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding TagFromFileNameCommand}"
+                VerticalAlignment="Top"
+                HorizontalAlignment="Left"
+                Height="23"
+                Margin="262,50,0,0"
+                Width="117">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="music.png"
+                        HorizontalAlignment="Left"
+                        Height="16"
+                        Margin="0,0,5,0"
+                        VerticalAlignment="Top"
+                        Width="16" />
+                    <TextBlock Text="From Filename" />
+                </StackPanel>
+            </Button>
         </Grid>
         <StatusBar VerticalAlignment="Bottom"
                    Background="WhiteSmoke"

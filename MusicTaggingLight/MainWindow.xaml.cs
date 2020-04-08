@@ -31,6 +31,7 @@ namespace MusicTaggingLight
             vm.SelectRootFolderFunc = new Func<string>(SelectRootFolderDialog);
             vm.ExitAction = new Action(() => Application.Current.Shutdown(0));
             vm.ShowAboutWindowAction = new Action(this.ShowAboutWindow);
+            vm.ShowFNExtWindowAction = new Action(this.ShowFNExtrWindow);
         }
 
         /// <summary>
@@ -49,6 +50,14 @@ namespace MusicTaggingLight
             var about = new AboutWindow();
             this.Opacity = 0.7;
             bool? dialogActive = about.ShowDialog();
+            if (dialogActive == false)
+                this.Opacity = 1.0;
+        }
+        private void ShowFNExtrWindow()
+        {
+            var dialog = new FromFNWindow(this.vm);
+            this.Opacity = 0.7;
+            bool? dialogActive = dialog.ShowDialog();
             if (dialogActive == false)
                 this.Opacity = 1.0;
         }
