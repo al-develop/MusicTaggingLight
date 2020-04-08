@@ -11,6 +11,8 @@ using MusicTaggingLight.Models;
 using MusicTaggingLight.Logic;
 using TagLib;
 using File = TagLib.File;
+using System.Windows;
+using System.Collections;
 
 namespace MusicTaggingLight
 {
@@ -24,6 +26,7 @@ namespace MusicTaggingLight
         public Action ShowAboutWindowAction { get; set; }
         public Action ShowFNExtWindowAction { get; set; }
         public Action CloseFNExtWindowAction { get; set; }
+        public Action ClearSelectionAction { get; set; }
 
         #endregion UI Delegates
 
@@ -37,18 +40,21 @@ namespace MusicTaggingLight
         public ICommand TagFromFileNameCommand { get; set; }
         public ICommand SaveFromFNCommand { get; set; }
         public ICommand ClearCommand { get; set; }
+        public ICommand ClearSelectionCommand { get; set; }
 
         #endregion Commands
 
 
         #region View Properties
         private ObservableCollection<MusicFileTag> _musicFileTags;
-        private MusicFileTag _selectedFile;
+        private List<MusicFileTag> _selectedItems;
+        private MusicFileTag _itemSelected;
         private string _rootPath;
         private string _fileNamePattern;
         private string _resultPreview;
         private string _notificationText;
         private string _notificationColor;
+        private GridLength _detColWidth;
 
         public string NotificationColor
         {
@@ -82,16 +88,30 @@ namespace MusicTaggingLight
                 SetProperty(ref _resultPreview, value, () => ResultPreview); 
             }
         }
-        public MusicFileTag SelectedFile
+        public List<MusicFileTag> SelectedItems
         {
-            get { return _selectedFile; }
+            get { return _selectedItems; }
             set
             {
-                SetProperty(ref _selectedFile, value, () => SelectedFile);
+                SetProperty(ref _selectedItems, value, () => SelectedItems);
             }
         }
-
-
+        public MusicFileTag ItemSelected
+        {
+            get { return _itemSelected; }
+            set
+            {
+                SetProperty(ref _itemSelected, value, () => ItemSelected);
+            }
+        }
+        public GridLength DetColWidth
+        {
+            get { return _detColWidth; }
+            set
+            {
+                SetProperty(ref _detColWidth, value, () => DetColWidth);
+            }
+        }
         public ObservableCollection<MusicFileTag> MusicFileTags
         {
             get { return _musicFileTags; }
@@ -102,7 +122,9 @@ namespace MusicTaggingLight
         public MainWindowViewModel()
         {
             MusicFileTags = new ObservableCollection<MusicFileTag>();
+            SelectedItems = new List<MusicFileTag>();
             Logic = new TaggingLogic();
+            DetColWidth = new GridLength(1, GridUnitType.Pixel);
             InitCommands();
             SetDefaultNotification();
         }
@@ -116,6 +138,7 @@ namespace MusicTaggingLight
             ExitCommand = new DelegateCommand(() => ExitAction.Invoke());
             OpenAboutCommand = new DelegateCommand(this.OpenAbout);
             ClearCommand = new DelegateCommand(this.ClearList);
+            ClearSelectionCommand = new DelegateCommand(() => ClearSelectionAction.Invoke());
         }
 
 
@@ -173,27 +196,52 @@ namespace MusicTaggingLight
 
         private void SaveFromFN()
         {
-            Result result = Logic.SaveTagsExtractedFromFilename(FileNamePattern, SelectedFile);
-            if (result.Status == Status.Success)
-                SetNotification("Tags saved", "Green");
-            else
-                SetNotification(result.Message, "Red");
             CloseFNExtWindowAction.Invoke();
+
+            foreach ( var item in SelectedItems)
+            {
+                Result result = Logic.SaveTagsExtractedFromFilename(FileNamePattern, item);
+                if (result.Status == Status.Success)
+                    SetNotification("Tags saved", "Green");
+                else
+                    SetNotification(result.Message, "Red");
+            }
+            SelectedItems.Clear();
+        }
+        
+        private void TagFromFilename()
+        {
+            if (SelectedItems.Count < 1)
+                return;
+            FileNamePattern = "%artist%-%title%";
+            ResultPreview = SelectedItems.FirstOrDefault().FileName;
+            ShowFNExtWindowAction.Invoke();
+        }
+
+        public void SelectionChanged(IList items)
+        {
+            SelectedItems.Clear();
+            foreach(MusicFileTag item in items)
+            {
+                SelectedItems.Add(item);
+            }
+            // if select only one file we show the details
+            if (SelectedItems.Count.Equals(1))
+            {
+                DetColWidth = new GridLength(500, GridUnitType.Pixel);
+                ItemSelected = SelectedItems.First();
+            }
+            else
+            {
+                DetColWidth = new GridLength(1, GridUnitType.Pixel);
+                ItemSelected = null;
+            }
         }
 
         private Task SearchOnline()
         {
             // not implemented yet
             return null;
-        }
-
-        private void TagFromFilename()
-        {
-            if (SelectedFile == null)
-                return;
-            FileNamePattern = "%artist%-%title%";
-            ResultPreview = SelectedFile.FileName;
-            ShowFNExtWindowAction.Invoke();
         }
 
         private void ClearList()
