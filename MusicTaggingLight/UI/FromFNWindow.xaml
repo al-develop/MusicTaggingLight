@@ -1,0 +1,16 @@
+﻿<Window x:Class="MusicTaggingLight.UI.FromFNWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MusicTaggingLight.UI"
+        mc:Ignorable="d"
+        Title="FromFNWindow" Height="200.625" Width="442.812">
+    <Grid>
+        <Label Content="File Pattern" HorizontalAlignment="Left" Margin="10,15,0,0" VerticalAlignment="Top"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="89,13,0,0" TextWrapping="Wrap" Text="{Binding Path=FileNamePattern, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" VerticalAlignment="Top" Width="326"/>
+        <Label Content="Preview" HorizontalAlignment="Left" Margin="28,56,0,0" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="89,57,0,0" TextWrapping="Wrap" Text="{Binding Path=ResultPreview}" VerticalAlignment="Top" Width="326" Height="23"/>
+        <Button Content="Save" Command="{Binding SaveFromFNCommand}" HorizontalAlignment="Left" Margin="340,0,0,18" VerticalAlignment="Bottom" Width="75"/>
+    </Grid>
+</Window>
