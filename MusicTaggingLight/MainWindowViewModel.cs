@@ -1,4 +1,4 @@
-﻿using System;
+﻿ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -22,6 +22,8 @@ namespace MusicTaggingLight
         public Func<string> SelectRootFolderFunc { get; set; }
         public Action ExitAction { get; set; }
         public Action ShowAboutWindowAction { get; set; }
+        public Action ShowFNExtWindowAction { get; set; }
+        public Action CloseFNExtWindowAction { get; set; }
 
         #endregion UI Delegates
 
@@ -32,6 +34,8 @@ namespace MusicTaggingLight
         public ICommand SearchOnlineCommand { get; set; }
         public ICommand ExitCommand { get; set; }
         public ICommand OpenAboutCommand { get; set; }
+        public ICommand TagFromFileNameCommand { get; set; }
+        public ICommand SaveFromFNCommand { get; set; }
         public ICommand ClearCommand { get; set; }
 
         #endregion Commands
@@ -41,6 +45,8 @@ namespace MusicTaggingLight
         private ObservableCollection<MusicFileTag> _musicFileTags;
         private MusicFileTag _selectedFile;
         private string _rootPath;
+        private string _fileNamePattern;
+        private string _resultPreview;
         private string _notificationText;
         private string _notificationColor;
 
@@ -59,6 +65,23 @@ namespace MusicTaggingLight
             get { return _rootPath; }
             set { SetProperty(ref _rootPath, value, () => RootPath); }
         }
+
+        public string FileNamePattern
+        {
+            get { return _fileNamePattern; }
+            set 
+            { 
+                SetProperty(ref _fileNamePattern, value, () => FileNamePattern); 
+            }
+        }
+        public string ResultPreview
+        {
+            get { return _resultPreview; }
+            set 
+            { 
+                SetProperty(ref _resultPreview, value, () => ResultPreview); 
+            }
+        }
         public MusicFileTag SelectedFile
         {
             get { return _selectedFile; }
@@ -67,6 +90,8 @@ namespace MusicTaggingLight
                 SetProperty(ref _selectedFile, value, () => SelectedFile);
             }
         }
+
+
         public ObservableCollection<MusicFileTag> MusicFileTags
         {
             get { return _musicFileTags; }
@@ -86,6 +111,8 @@ namespace MusicTaggingLight
             SelectRootFolderCommand = new DelegateCommand(SelectRootFolder);
             SaveCommand = new DelegateCommand(Save);
             SearchOnlineCommand = new AsyncCommand(SearchOnline);
+            TagFromFileNameCommand = new DelegateCommand(this.TagFromFilename);
+            SaveFromFNCommand = new DelegateCommand(this.SaveFromFN);
             ExitCommand = new DelegateCommand(() => ExitAction.Invoke());
             OpenAboutCommand = new DelegateCommand(this.OpenAbout);
             ClearCommand = new DelegateCommand(this.ClearList);
@@ -144,10 +171,29 @@ namespace MusicTaggingLight
             }
         }
 
+        private void SaveFromFN()
+        {
+            Result result = Logic.SaveTagsExtractedFromFilename(FileNamePattern, SelectedFile);
+            if (result.Status == Status.Success)
+                SetNotification("Tags saved", "Green");
+            else
+                SetNotification(result.Message, "Red");
+            CloseFNExtWindowAction.Invoke();
+        }
+
         private Task SearchOnline()
         {
             // not implemented yet
             return null;
+        }
+
+        private void TagFromFilename()
+        {
+            if (SelectedFile == null)
+                return;
+            FileNamePattern = "%artist%-%title%";
+            ResultPreview = SelectedFile.FileName;
+            ShowFNExtWindowAction.Invoke();
         }
 
         private void ClearList()

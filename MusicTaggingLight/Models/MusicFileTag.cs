@@ -17,7 +17,8 @@ namespace MusicTaggingLight.Models
         private string _title;
         private string _comment;
         private uint _track;
-        private string _file;
+        private string _filePath;
+        private string _fileName;
 
         private byte[] _albumCover;
 
@@ -95,10 +96,19 @@ namespace MusicTaggingLight.Models
         /// <summary>
         /// Represents the location on the drive for the music file.
         /// </summary>
-        public string File
+        public string FilePath
         {
-            get { return _file; }
-            set { SetProperty(ref _file, value, () => File); }
+            get { return _filePath; }
+            set { SetProperty(ref _filePath, value, () => FilePath); }
+        }
+        
+        /// <summary>
+        /// Contains the file name without path.
+        /// </summary>
+        public string FileName
+        {
+            get { return _fileName; }
+            set { SetProperty(ref _fileName, value, () => FileName); }
         }
 
 
@@ -136,13 +146,14 @@ namespace MusicTaggingLight.Models
             tmp.Title = tag.Title;
             tmp.Comment = tag.Comment;
             tmp.Track = tag.Track;
-            tmp.File = filePath;
+            tmp.FilePath = filePath;
+            tmp.FileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
             return tmp;
         }
 
         public static File ConvertMusicFileTagToTag(MusicFileTag musicTag)
         {
-            File tagInfo = TagLib.File.Create(musicTag.File);
+            File tagInfo = TagLib.File.Create(musicTag.FilePath);
 
             //tagInfo.Tag.Clear();
             tagInfo.Tag.Performers = new string[] { musicTag.Artist ?? ""};       // Sets the FirstPerformer

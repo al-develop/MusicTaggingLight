@@ -14,6 +14,14 @@ namespace MusicTaggingLight.Logic
 {
     public class TaggingLogic
     {
+
+        private string artist = "%artist%";
+        private string album = "%album%";
+        private string track = "%track%";
+        private string year = "%year%";
+        private string genre = "%genre%";
+        private string title = "%title%";
+
         internal Result<List<MusicFileTag>> LoadMusicFilesFromRoot(string root)
         {
             var musicFileTags = new List<MusicFileTag>();
@@ -90,13 +98,52 @@ namespace MusicTaggingLight.Logic
 
         public Result SaveTagToFile(MusicFileTag tag)
         {
-            if (String.IsNullOrEmpty(tag.File))
-                return new Result("No File specified", Status.Error);
+            if (String.IsNullOrEmpty(tag.FilePath))
+                return new Result("No FilePath specified", Status.Error);
 
             File tagInfo = MusicFileTag.ConvertMusicFileTagToTag(tag);
             tagInfo.Save();
 
             return new Result("", Status.Success);
+        }
+
+        public Result SaveTagsExtractedFromFilename(string pattern, MusicFileTag tag)
+        {
+            List<string> filenameComponents = tag.FileName.Split('-').Select(x => { return x.Trim(); }).ToList();
+            var patternComponents = pattern.Split('-').Select(x => { return x.Trim(); }).ToList();
+
+            if (pattern.Contains(artist))
+            {
+                var index = patternComponents.IndexOf(artist);
+                tag.Artist = filenameComponents[index];
+            }
+            if (pattern.Contains(title))
+            {
+                var index = patternComponents.IndexOf(title);
+                tag.Title = filenameComponents[index];
+            }
+            if (pattern.Contains(year))
+            {
+                var index = patternComponents.IndexOf(year);
+                tag.Year = Convert.ToUInt32(filenameComponents[index]);
+            }
+            if (pattern.Contains(album))
+            {
+                var index = patternComponents.IndexOf(album);
+                tag.Album = filenameComponents[index];
+            }
+            if (pattern.Contains(track))
+            {
+                var index = patternComponents.IndexOf(track);
+                tag.Track = Convert.ToUInt32(filenameComponents[index]);
+            }
+            if (pattern.Contains(genre))
+            {
+                var index = patternComponents.IndexOf(genre);
+                tag.Genre = filenameComponents[index];
+            }
+
+            return SaveTagToFile(tag);
         }
     }
 }
