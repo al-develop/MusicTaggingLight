@@ -10,7 +10,7 @@
         <Label Content="File Pattern" HorizontalAlignment="Left" Margin="10,15,0,0" VerticalAlignment="Top"/>
         <TextBox HorizontalAlignment="Left" Height="23" Margin="89,13,0,0" TextWrapping="Wrap" Text="{Binding Path=FileNamePattern, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" VerticalAlignment="Top" Width="326"/>
         <Label Content="Preview" HorizontalAlignment="Left" Margin="28,56,0,0" VerticalAlignment="Top"/>
-        <TextBlock HorizontalAlignment="Left" Margin="89,57,0,0" TextWrapping="Wrap" Text="{Binding Path=ResultPreview}" VerticalAlignment="Top" Width="326" Height="23"/>
+        <TextBlock HorizontalAlignment="Left" Margin="89,57,0,0" TextWrapping="Wrap" Text="{Binding Path=ResultPreview, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}" VerticalAlignment="Top" Width="326" Height="23"/>
         <Button Content="Save" Command="{Binding SaveFromFNCommand}" HorizontalAlignment="Left" Margin="340,0,0,18" VerticalAlignment="Bottom" Width="75"/>
     </Grid>
 </Window>

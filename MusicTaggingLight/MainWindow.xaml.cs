@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using MusicTaggingLight.Models;
 using MusicTaggingLight.UI;
 using Ookii.Dialogs.Wpf;
 
@@ -32,6 +33,7 @@ namespace MusicTaggingLight
             vm.ExitAction = new Action(() => Application.Current.Shutdown(0));
             vm.ShowAboutWindowAction = new Action(this.ShowAboutWindow);
             vm.ShowFNExtWindowAction = new Action(this.ShowFNExtrWindow);
+            vm.ClearSelectionAction = new Action(this.ClearSelection);
         }
 
         /// <summary>
@@ -45,6 +47,7 @@ namespace MusicTaggingLight
                 return dialog.SelectedPath;
             return "";
         }
+
         private void ShowAboutWindow()
         {
             var about = new AboutWindow();
@@ -106,6 +109,16 @@ namespace MusicTaggingLight
         {
             FileAttributes attr = File.GetAttributes(path);
             return (attr & FileAttributes.Directory) == FileAttributes.Directory;
+        }
+
+        private void SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            vm.SelectionChanged(dgrFileTags.SelectedItems);
+        }
+
+        private void ClearSelection()
+        {
+            dgrFileTags.SelectedItems.Clear();
         }
 
         private bool CheckForMp3(string[] data)
