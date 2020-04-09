@@ -22,13 +22,20 @@
             <Setter Property="Background"
                     Value="WhiteSmoke" />
         </Style>
+        <Style TargetType="{x:Type DataGridCell}" >
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
     <Window.InputBindings>
         <KeyBinding Command="{Binding SaveCommand}"
                     Gesture="Ctrl+S" />
         <KeyBinding Command="{Binding OpenAboutCommand}"
                     Gesture="Ctrl+I" />
-        <KeyBinding Command="{Binding ExitCommand}"
+        <KeyBinding Command="{Binding ClearSelectionCommand}"
                     Gesture="Esc" />
         <KeyBinding Command="{Binding ClearCommand}"
                     Gesture="Alt+C" />
@@ -115,35 +122,32 @@
               Margin="10,31,10,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="337*" />
-                <ColumnDefinition Width="2*" />
-                <ColumnDefinition Width="190*" />
+                <ColumnDefinition Width="{Binding DetColWidth}" />
             </Grid.ColumnDefinitions>
             <DataGrid adonisExtensions:GridViewSortExtension.AutoSort="True"
                       adonisExtensions:GridViewSortExtension.PropertyName="Track"
                       Grid.Column="0"
                       AllowDrop="True"
                       DragDrop.Drop="dgrFileTags_Drop"
-                      SelectedItem="{Binding SelectedFile, UpdateSourceTrigger=PropertyChanged}"
+                      SelectionMode="Extended"
+                      SelectionUnit="FullRow"
+                      Selector.SelectionChanged="SelectionChanged"
                       CanUserAddRows="False"
                       CanUserDeleteRows="False"
-                      AlternatingRowBackground="AliceBlue"
+                      AlternatingRowBackground="#FFF9F9F9"
                       AutoGeneratingColumn="dgrFileTags_AutoGeneratingColumn"
                       x:Name="dgrFileTags"
                       ItemsSource="{Binding MusicFileTags}"
-                      Margin="0,0,5,0" />
-            <GridSplitter Grid.Column="1"
-                          Panel.ZIndex="1"
-                          Background="LightGray"
-                          ResizeDirection="Columns"
-                          ResizeBehavior="PreviousAndNext"
-                          Width="2" />
+                      Margin="0,0,5,0" 
+                      RowBackground="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}" 
+                      GridLinesVisibility="Horizontal" />
             <xctk:PropertyGrid Margin="5,21,0,0"
                                ShowTitle="False"
                                ShowSearchBox="False"
                                ShowSummary="False"
                                ShowAdvancedOptions="False"
                                ShowSortOptions="False"
-                               SelectedObject="{Binding SelectedFile, UpdateSourceTrigger=PropertyChanged}"
+                               SelectedObject="{Binding ItemSelected, UpdateSourceTrigger=PropertyChanged}"
                                Grid.Column="2" />
             <TextBlock x:Name="textBlock1"
                        Grid.Column="2"
