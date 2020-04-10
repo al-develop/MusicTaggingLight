@@ -103,8 +103,18 @@ namespace MusicTaggingLight.Logic
 
             File tagInfo = MusicFileTag.ConvertMusicFileTagToTag(tag);
             tagInfo.Save();
-
+            RenameFile(tag);
             return new Result("", Status.Success);
+        }
+
+        
+        private void RenameFile(MusicFileTag tag)
+        {
+            string CurrentFName = System.IO.Path.GetFileNameWithoutExtension(tag.FilePath);
+            if (CurrentFName == tag.FileName) return;
+
+            FileInfo currentFile = new FileInfo(tag.FilePath);
+            currentFile.MoveTo(currentFile.Directory.FullName + "\\" + tag.FileName + currentFile.Extension);
         }
 
         public Result SaveTagsExtractedFromFilename(string pattern, MusicFileTag tag)
