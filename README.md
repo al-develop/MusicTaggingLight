@@ -4,7 +4,8 @@ You select a root Folder and all \*.mp3 song files are loaded in the UI.
 There you can edit the ID3 Tags through the DataGrid or the PropertyGrid.
 For saving the edited data, just click the button or use the Ctrl+S shortcut.
 
-![preview](https://github.com/al-develop/MusicTaggingLight/blob/master/musictagginglight.png)
+![preview](https://github.com/jvegaf/MusicTaggingLight/blob/master/musictagginglight.png)
+![preview](https://github.com/jvegaf/MusicTaggingLight/blob/master/musictagginglight-edit.png)
 
 # For Developers - what to contribute?
 This project is far from being finished. I just implemented the basic stuff for tagging \*.mp3 files.
