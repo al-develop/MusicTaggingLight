@@ -13,12 +13,16 @@ using TagLib;
 using File = TagLib.File;
 using System.Windows;
 using System.Collections;
+using MusicTaggingLight.ViewModels;
+using MusicTaggingLight.UI;
 
 namespace MusicTaggingLight
 {
     public class MainWindowViewModel : ViewModelBase
     {
         public TaggingLogic Logic { get; set; }
+        public DetailViewModel DetailVM { get; set; }
+        public DetailView DetailView { get; set; }
 
         #region UI Delegates
         public Func<string> SelectRootFolderFunc { get; set; }
@@ -33,7 +37,7 @@ namespace MusicTaggingLight
 
         #region Commands
         public ICommand SelectRootFolderCommand { get; set; }
-        public ICommand SaveCommand { get; set; }
+        public ICommand<MusicFileTag> SaveCommand { get; set; }
         public ICommand SearchOnlineCommand { get; set; }
         public ICommand ExitCommand { get; set; }
         public ICommand OpenAboutCommand { get; set; }
@@ -121,6 +125,8 @@ namespace MusicTaggingLight
 
         public MainWindowViewModel()
         {
+            DetailVM = new DetailViewModel(this);
+            DetailView = new DetailView(DetailVM);
             MusicFileTags = new ObservableCollection<MusicFileTag>();
             SelectedItems = new List<MusicFileTag>();
             Logic = new TaggingLogic();
@@ -131,7 +137,7 @@ namespace MusicTaggingLight
         private void InitCommands()
         {
             SelectRootFolderCommand = new DelegateCommand(SelectRootFolder);
-            SaveCommand = new DelegateCommand(Save);
+            SaveCommand = new DelegateCommand<MusicFileTag>(Save);
             SearchOnlineCommand = new AsyncCommand(SearchOnline);
             TagFromFileNameCommand = new DelegateCommand(this.TagFromFilename);
             SaveFromFNCommand = new DelegateCommand(this.SaveFromFN);
@@ -182,16 +188,13 @@ namespace MusicTaggingLight
             ProcessLoadedMusicFiles(loadedFiles);
         }
 
-        private void Save()
+        private void Save(MusicFileTag musicFileTag)
         {
-            foreach (var tag in MusicFileTags)
-            {
-                Result result = Logic.SaveTagToFile(tag);
+                Result result = Logic.SaveTagToFile(musicFileTag);
                 if (result.Status == Status.Success)
                     SetNotification("Tags saved", "Green");
                 else
                     SetNotification(result.Message, "Red");
-            }
         }
 
         private void SaveFromFN()
@@ -228,8 +231,9 @@ namespace MusicTaggingLight
             // if select only one file we show the details
             if (SelectedItems.Count.Equals(1))
             {
-                DetColWidth = new GridLength(500, GridUnitType.Pixel);
                 ItemSelected = SelectedItems.First();
+                DetailVM.SetItemToShow(ItemSelected);
+                DetColWidth = new GridLength(400, GridUnitType.Pixel);
             }
             else
             {

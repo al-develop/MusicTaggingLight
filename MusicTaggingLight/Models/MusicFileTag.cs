@@ -145,6 +145,8 @@ namespace MusicTaggingLight.Models
             tmp.Year = tag.Year;
             tmp.Title = tag.Title;
             tmp.Comment = tag.Comment;
+            if(tag.Pictures.Length >= 1) 
+                tmp.AlbumCover = tag.Pictures?.First().Data.Data;
             tmp.Track = tag.Track;
             tmp.FilePath = filePath;
             tmp.FileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
@@ -162,10 +164,9 @@ namespace MusicTaggingLight.Models
             tagInfo.Tag.Album = musicTag.Album;
             tagInfo.Tag.Title = musicTag.Title;
             tagInfo.Tag.Comment = musicTag.Comment;
-
             tagInfo.Tag.Year = musicTag.Year;
             tagInfo.Tag.Track = musicTag.Track;
-
+            
             return tagInfo;
         }
     }
