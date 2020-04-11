@@ -123,36 +123,36 @@
                   Width="120"
                   Height="120">
                 <Image Source="/MusicTaggingLight;component/Resources/placeholder.png" />
-                <Image Source="{Binding Path=AlbumCover}" />
+                <Image Source="{Binding Path=MusicfileTag.AlbumCover}" />
                     
             </Grid>
 
             <StackPanel Grid.Column="1" VerticalAlignment="Center" Orientation="Vertical">
                 <GroupBox Header="Track">
-                    <TextBox Text="{Binding Path=Track, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+                    <TextBox Text="{Binding Path=MusicfileTag.Track, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
                 </GroupBox>
                 <GroupBox Header="Year">
-                    <TextBox Text="{Binding Path=Year, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+                    <TextBox Text="{Binding Path=MusicfileTag.Year, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
                 </GroupBox>
                 <GroupBox Header="Genre">
-                    <TextBox Text="{Binding Path=Genre, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+                    <TextBox Text="{Binding Path=MusicfileTag.Genre, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
                 </GroupBox>
             </StackPanel>
         </Grid>
         <GroupBox Grid.Row="2" Header="Title">
-            <TextBox Text="{Binding Path=Title, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+            <TextBox Text="{Binding Path=MusicfileTag.Title, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
         </GroupBox>
         <GroupBox Grid.Row="3" Header="Artist">
-            <TextBox Text="{Binding Path=Artist, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+            <TextBox Text="{Binding Path=MusicfileTag.Artist, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
         </GroupBox>
         <GroupBox Grid.Row="4" Header="Album">
-            <TextBox Text="{Binding Path=Album, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+            <TextBox Text="{Binding Path=MusicfileTag.Album, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
         </GroupBox>
         <GroupBox Grid.Row="5" Header="File Name">
-            <TextBox Text="{Binding Path=FileName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+            <TextBox Text="{Binding Path=MusicfileTagFileName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
         </GroupBox>
         <GroupBox Grid.Row="6" Header="Comment" Margin="0,0,0,150" Grid.RowSpan="2"  >
-            <TextBox Text="{Binding Path=Comment, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Margin="0,0,0,0"/>
+            <TextBox Text="{Binding Path=MusicfileTag.Comment, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Margin="0,0,0,0"/>
         </GroupBox>
     </Grid>
 </UserControl>
