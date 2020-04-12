@@ -211,7 +211,6 @@ namespace MusicTaggingLight.Models
         {
             File tagInfo = TagLib.File.Create(musicTag.FilePath);
 
-            //tagInfo.Tag.Clear();
             tagInfo.Tag.Performers = new string[] { musicTag.Artist ?? "" };       // Sets the FirstPerformer
             tagInfo.Tag.AlbumArtists = new string[] { musicTag.Artist ?? "" };    // Sets the FirstArtist
             tagInfo.Tag.Genres = new string[] { musicTag.Genre ?? "" };           // Sets the FirstGenre

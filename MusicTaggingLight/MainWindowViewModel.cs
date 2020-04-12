@@ -190,9 +190,6 @@ namespace MusicTaggingLight
 
         public void SelectionChanged(System.Collections.IList items)
         {
-            //DetailColumnWidth = 400;
-            //DetailsVisible = true;
-
             SelectedItems.Clear();
             foreach (DetailViewModel item in items)
             {

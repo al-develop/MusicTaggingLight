@@ -90,7 +90,6 @@ namespace MusicTaggingLight.Logic
                 return new List<string>();
 
             IEnumerable<string> subfolders = Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories);
-            //.Where(f => !Directory.EnumerateDirectories(f).Any());
             return subfolders;
         }
 
