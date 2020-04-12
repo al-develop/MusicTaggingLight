@@ -1,19 +1,14 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
+using System.Resources;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using MusicTaggingLight.Models;
+using System.Xml.Linq;
 using MusicTaggingLight.UI;
 using Ookii.Dialogs.Wpf;
 
@@ -25,6 +20,8 @@ namespace MusicTaggingLight
     public partial class MainWindow : Window
     {
         private readonly MainWindowViewModel vm;
+        private Dictionary<string,int> Order;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -34,6 +31,7 @@ namespace MusicTaggingLight
             vm.ShowAboutWindowAction = new Action(this.ShowAboutWindow);
             vm.ShowFNExtWindowAction = new Action(this.ShowFNExtrWindow);
             vm.ClearSelectionAction = new Action(this.ClearSelection);
+            Order = GetOrder();
         }
 
         /// <summary>
@@ -47,6 +45,29 @@ namespace MusicTaggingLight
                 return dialog.SelectedPath;
             return "";
         }
+
+        private Dictionary<string,int> GetOrder()
+        {
+            Dictionary<string, int> orderDict = new Dictionary<string, int>();
+            XElement doc = XElement.Load(@"../../Resources/colsorder.xml");
+            IEnumerable<XElement> items = doc.Descendants();
+            foreach (var item in items)
+            {
+                orderDict.Add(item.Name.LocalName, int.Parse(item.Value));
+            }
+            return orderDict;
+        }
+
+        private void SaveOrder()
+        {
+            XElement el = new XElement(
+                "items",
+                from keyValue in Order
+                select new XElement(keyValue.Key, keyValue.Value));
+            XDocument doc = new XDocument(el);
+            doc.Save(@"../../Resources/colsorder.xml");
+        }
+
 
         private void ShowAboutWindow()
         {
@@ -68,8 +89,16 @@ namespace MusicTaggingLight
         private void dgrFileTags_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
         {
             if (e.Column.Header.ToString().ToLower() == "albumcover")
+            {
                 e.Cancel = true;
+            }
+            else
+            {
+                e.Column.DisplayIndex = Order[e.Column.Header.ToString()];
+            }
         }
+
+        
 
         private void dgrFileTags_Drop(object sender, DragEventArgs e)
         {
@@ -134,6 +163,17 @@ namespace MusicTaggingLight
 
             vm.SetNotification("Only *.mp3 files supported!", "Orange");
             return false;
+        }
+
+        private void dgrFileTags_ColumnReordered(object sender, DataGridColumnEventArgs e)
+        {
+            var grid = (DataGrid)sender;
+            Order.Clear();
+            foreach (var column in grid.Columns)
+            {
+                Order.Add(column.Header.ToString(), column.DisplayIndex);
+            }
+            SaveOrder();
         }
     }
 }

@@ -99,6 +99,7 @@
     </ApplicationDefinition>
     <Compile Include="Logic\ObservableCollectionExtensions.cs" />
     <Compile Include="Models\Result.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="UI\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
@@ -155,6 +156,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -207,6 +209,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\placeholder.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\colsorder.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
