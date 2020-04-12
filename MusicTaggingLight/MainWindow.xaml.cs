@@ -20,7 +20,7 @@ namespace MusicTaggingLight
     public partial class MainWindow : Window
     {
         private readonly MainWindowViewModel vm;
-        private Dictionary<string,int> Order;
+        private Dictionary<string,int> OrderDict;
 
         public MainWindow()
         {
@@ -31,7 +31,7 @@ namespace MusicTaggingLight
             vm.ShowAboutWindowAction = new Action(this.ShowAboutWindow);
             vm.ShowFNExtWindowAction = new Action(this.ShowFNExtrWindow);
             vm.ClearSelectionAction = new Action(this.ClearSelection);
-            Order = GetOrder();
+            OrderDict = GetColumnsOrder();
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace MusicTaggingLight
             return "";
         }
 
-        private Dictionary<string,int> GetOrder()
+        private Dictionary<string,int> GetColumnsOrder()
         {
             Dictionary<string, int> orderDict = new Dictionary<string, int>();
             XElement doc = XElement.Load(@"../../Resources/colsorder.xml");
@@ -58,11 +58,11 @@ namespace MusicTaggingLight
             return orderDict;
         }
 
-        private void SaveOrder()
+        private void SaveColumnsOrder()
         {
             XElement el = new XElement(
                 "items",
-                from keyValue in Order
+                from keyValue in OrderDict
                 select new XElement(keyValue.Key, keyValue.Value));
             XDocument doc = new XDocument(el);
             doc.Save(@"../../Resources/colsorder.xml");
@@ -94,11 +94,9 @@ namespace MusicTaggingLight
             }
             else
             {
-                e.Column.DisplayIndex = Order[e.Column.Header.ToString()];
+                e.Column.DisplayIndex = OrderDict[e.Column.Header.ToString()];
             }
         }
-
-        
 
         private void dgrFileTags_Drop(object sender, DragEventArgs e)
         {
@@ -168,12 +166,12 @@ namespace MusicTaggingLight
         private void dgrFileTags_ColumnReordered(object sender, DataGridColumnEventArgs e)
         {
             var grid = (DataGrid)sender;
-            Order.Clear();
+            OrderDict.Clear();
             foreach (var column in grid.Columns)
             {
-                Order.Add(column.Header.ToString(), column.DisplayIndex);
+                OrderDict.Add(column.Header.ToString(), column.DisplayIndex);
             }
-            SaveOrder();
+            SaveColumnsOrder();
         }
     }
 }
