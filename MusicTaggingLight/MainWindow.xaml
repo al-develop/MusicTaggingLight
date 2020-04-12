@@ -5,11 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MusicTaggingLight"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:ui="clr-namespace:MusicTaggingLight.UI"
+        xmlns:vm="clr-namespace:MusicTaggingLight.ViewModels"
+        xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
+        xmlns:converter="clr-namespace:MusicTaggingLight.Converter"
         xmlns:adonisExtensions="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
         mc:Ignorable="d"
         Title="Music Tagging Light"
-        Height="560"
-        Width="1028"
+        ResizeMode="CanResizeWithGrip"
+        Height="700"
+        Width="1185"
+        WindowStartupLocation="CenterScreen"
         MinHeight="350"
         MinWidth="540">
     <Window.DataContext>
@@ -18,17 +24,29 @@
     <Window.Resources>
         <Style TargetType="Window"
                BasedOn="{StaticResource {x:Type Window}}" />
-        <Style TargetType="Button">
-            <Setter Property="Background"
-                    Value="WhiteSmoke" />
-        </Style>
-        <Style TargetType="{x:Type DataGridCell}" >
+        <Style TargetType="{x:Type DataGridCell}">
             <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Foreground" Value="White"/>
+                <Trigger Property="IsSelected"
+                         Value="True">
+                    <Setter Property="Foreground"
+                            Value="Black" />
                 </Trigger>
             </Style.Triggers>
         </Style>
+        <Style TargetType="ContentControl"
+               x:Key="VisibilityAnimation">
+            <Setter Property="Opacity"
+                    Value="0" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Visibility}"
+                             Value="Visible">
+                    <Setter Property="Opacity"
+                            Value="1" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <dxmvvm:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converter:DoubleToGridLenghtConverter x:Key="DoubleToGridLenghtConverter" />
     </Window.Resources>
     <Window.InputBindings>
         <KeyBinding Command="{Binding SaveCommand}"
@@ -42,9 +60,9 @@
     </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="57" />
+            <RowDefinition Height="60" />
             <RowDefinition />
-            <RowDefinition Height="93" />
+            <RowDefinition Height="100" />
             <RowDefinition Height="23" />
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
@@ -76,12 +94,12 @@
                      Text="{Binding RootPath, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                      HorizontalAlignment="Stretch"
                      Margin="10,28,80,0"
-                     Height="22" />
+                     Height="25" />
             <Button VerticalAlignment="Center"
                     HorizontalAlignment="Right"
                     Width="65"
                     Command="{Binding SelectRootFolderCommand}"
-                    Height="22"
+                    Height="25"
                     Margin="0,28,10,7">
                 <StackPanel Orientation="Horizontal">
                     <Image Source="pack://application:,,,/Resources/search.png"
@@ -115,40 +133,71 @@
                    Height="16"
                    Width="66" />
         <Separator Height="5"
-                   Margin="117,17,10,0"
+                   Margin="115,17,10,0"
                    VerticalAlignment="Top"
                    Grid.Row="1" />
         <Grid Grid.Row="1"
               Margin="10,31,10,10">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="337*" />
-                <ColumnDefinition Width="{Binding DetColWidth}" />
+                <ColumnDefinition Width="337*"
+                                  MinWidth="200" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="{Binding DetailColumnWidth}" />
             </Grid.ColumnDefinitions>
-            <DataGrid adonisExtensions:GridViewSortExtension.AutoSort="True"
-                      adonisExtensions:GridViewSortExtension.PropertyName="Track"
+            <DataGrid MinWidth="250"
                       Grid.Column="0"
                       AllowDrop="True"
                       DragDrop.Drop="dgrFileTags_Drop"
                       SelectionMode="Extended"
                       SelectionUnit="FullRow"
-                      Selector.SelectionChanged="SelectionChanged"
+                      SelectionChanged="DgrFileTags_SelectionChanged"
                       CanUserAddRows="False"
                       CanUserDeleteRows="False"
                       AlternatingRowBackground="#FFF9F9F9"
-                      AutoGeneratingColumn="dgrFileTags_AutoGeneratingColumn"
                       x:Name="dgrFileTags"
                       ItemsSource="{Binding MusicFileTags}"
-                      Margin="0,0,5,0" 
-                      RowBackground="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}" 
-                      GridLinesVisibility="Horizontal" />
-            <ScrollViewer Grid.Column="1"
-                          VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled">
-                <UserControl Content="{Binding DetailView}"/>
+                      SelectedItem="{Binding SelectedItem}"
+                      Margin="0,0,5,0"
+                      AutoGenerateColumns="False"
+                      RowBackground="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}"
+                      GridLinesVisibility="Horizontal">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Track"
+                                        Binding="{Binding MusicFileTag.Track}" />
+                    <DataGridTextColumn Header="Filename"
+                                        Binding="{Binding MusicFileTag.FileName}" />
+                    <DataGridTextColumn Header="Title"
+                                        Binding="{Binding MusicFileTag.Title}" />
+                    <DataGridTextColumn Header="Album"
+                                        Binding="{Binding MusicFileTag.Album}" />
+                    <DataGridTextColumn Header="Artist"
+                                        Binding="{Binding MusicFileTag.Artist}" />
+                    <DataGridTextColumn Header="Genre"
+                                        Binding="{Binding MusicFileTag.Genre}" />
+                    <DataGridTextColumn Header="Year"
+                                        Binding="{Binding MusicFileTag.Year}" />
+                    <DataGridTextColumn Header="Comment"
+                                        Binding="{Binding MusicFileTag.Comment}" />
+                    <DataGridTextColumn Header="File Path"
+                                        IsReadOnly="True"
+                                        Binding="{Binding MusicFileTag.FilePath}" />
+                </DataGrid.Columns>
+            </DataGrid>
+            <GridSplitter Grid.Column="1"
+                          VerticalAlignment="Stretch"
+                          HorizontalAlignment="Center"
+                          Width="3"
+                          Margin="1,0,3,0"
+                          Visibility="{Binding DetailsVisible, Converter={StaticResource ResourceKey=BooleanToVisibilityConverter}}"
+                          Background="LightSeaGreen" />
+            <ScrollViewer Grid.Column="2"
+                          Visibility="{Binding DetailsVisible, Converter={StaticResource ResourceKey=BooleanToVisibilityConverter}}"
+                          Margin="0,0,0,0">
+                <ui:DetailView DataContext="{Binding SelectedItem, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
             </ScrollViewer>
         </Grid>
         <Grid Grid.Row="2"
-              VerticalAlignment="Top">
+              VerticalAlignment="Stretch">
             <Separator HorizontalAlignment="Left"
                        Height="5"
                        Width="10"
@@ -169,10 +218,11 @@
                        VerticalAlignment="Top" />
             <Button Command="{Binding SearchOnlineCommand}"
                     VerticalAlignment="Top"
+                    IsEnabled="False"
                     HorizontalAlignment="Left"
-                    Width="117"
-                    Height="23"
-                    Margin="10,20,0,10">
+                    Width="115"
+                    Height="30"
+                    Margin="10,60,0,0">
                 <StackPanel Orientation="Horizontal">
                     <Image x:Name="image"
                            Source="pack://application:,,,/Resources/www.png"
@@ -187,9 +237,9 @@
             <Button Command="{Binding SaveCommand}"
                     VerticalAlignment="Top"
                     HorizontalAlignment="Left"
-                    Width="117"
-                    Height="23"
-                    Margin="140,20,0,0">
+                    Width="115"
+                    Height="30"
+                    Margin="139,60,0,0">
                 <StackPanel Orientation="Horizontal">
                     <Image Source="pack://application:,,,/Resources/save.png"
                            HorizontalAlignment="Left"
@@ -203,9 +253,9 @@
             <Button Command="{Binding ClearCommand}"
                     VerticalAlignment="Top"
                     HorizontalAlignment="Left"
-                    Width="117"
-                    Height="23"
-                    Margin="262,20,0,0">
+                    Width="115"
+                    Height="30"
+                    Margin="139,20,0,0">
                 <StackPanel Orientation="Horizontal">
                     <Image Source="pack://application:,,,/Resources/clear.png"
                            HorizontalAlignment="Left"
@@ -218,10 +268,10 @@
             </Button>
             <Button Command="{Binding OpenAboutCommand}"
                     VerticalAlignment="Top"
-                    HorizontalAlignment="Left"
-                    Margin="10,50,0,0"
-                    Width="117"
-                    Height="23">
+                    HorizontalAlignment="Right"
+                    Margin="0,60,135,0"
+                    Width="115"
+                    Height="30">
                 <StackPanel Orientation="Horizontal">
                     <Image x:Name="image1"
                            Source="Resources/info16.png"
@@ -235,10 +285,10 @@
             </Button>
             <Button Command="{Binding ExitCommand}"
                     VerticalAlignment="Top"
-                    HorizontalAlignment="Left"
-                    Height="23"
-                    Margin="140,50,0,0"
-                    Width="117">
+                    HorizontalAlignment="Right"
+                    Height="30"
+                    Margin="0,60,10,0"
+                    Width="115">
                 <StackPanel Orientation="Horizontal">
                     <Image Source="Resources/shutdown.png"
                            HorizontalAlignment="Left"
@@ -249,36 +299,38 @@
                     <TextBlock Text="Exit" />
                 </StackPanel>
             </Button>
-            <Button Command="{Binding ExitCommand}"
-                VerticalAlignment="Top"
-                HorizontalAlignment="Left"
-                Height="23"
-                Margin="140,50,0,0"
-                Width="117">
-                <StackPanel Orientation="Horizontal">
-                    <Image Source="Resources/shutdown.png"
-                        HorizontalAlignment="Left"
-                        Height="16"
-                        Margin="0,0,5,0"
-                        VerticalAlignment="Top"
-                        Width="16" />
-                    <TextBlock Text="Exit" />
-                </StackPanel>
-            </Button>
             <Button Command="{Binding TagFromFileNameCommand}"
-                VerticalAlignment="Top"
-                HorizontalAlignment="Left"
-                Height="23"
-                Margin="262,50,0,0"
-                Width="117">
+                    VerticalAlignment="Top"
+                    HorizontalAlignment="Left"
+                    Height="30"
+                    Margin="10,20,0,0"
+                    Width="115">
                 <StackPanel Orientation="Horizontal">
                     <Image Source="music.png"
-                        HorizontalAlignment="Left"
-                        Height="16"
-                        Margin="0,0,5,0"
-                        VerticalAlignment="Top"
-                        Width="16" />
+                           HorizontalAlignment="Left"
+                           Height="16"
+                           Margin="0,0,5,0"
+                           VerticalAlignment="Top"
+                           Width="16" />
                     <TextBlock Text="From Filename" />
+                </StackPanel>
+            </Button>
+            <Button VerticalAlignment="Top"
+                    IsEnabled="False"
+                    ToolTip="Not implemented yet!"
+                    HorizontalAlignment="Right"
+                    Height="30"
+                    Margin="0,60,258,0"
+                    Width="115">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="pack://application:,,,/Resources/settings.png"
+                           Opacity="0.5"
+                           HorizontalAlignment="Left"
+                           Height="16"
+                           Margin="0,0,5,0"
+                           VerticalAlignment="Top"
+                           Width="16" />
+                    <TextBlock Text="Settings" />
                 </StackPanel>
             </Button>
         </Grid>

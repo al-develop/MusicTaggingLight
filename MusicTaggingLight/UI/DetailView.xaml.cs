@@ -1,34 +1,30 @@
-﻿using MusicTaggingLight.Models;
-using MusicTaggingLight.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+﻿using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using MusicTaggingLight.ViewModels;
+using Ookii.Dialogs.Wpf;
 
 namespace MusicTaggingLight.UI
 {
     /// <summary>
-    /// Lógica de interacción para DetailView.xaml
+    /// Code Behind for DetailView.xaml
     /// </summary>
     public partial class DetailView : UserControl
     {
-
-        private DetailViewModel dvm;
-
-        public DetailView(DetailViewModel vm)
+        private DetailViewModel _vm;
+        public DetailView()
         {
-            InitializeComponent();
-            this.DataContext = this.dvm = vm;
+            InitializeComponent();            
+        }
+
+        private void GridAlbumCover_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var dialog = new VistaOpenFileDialog();
+            dialog.Filter = "Image Files (*.jpg;*.jpeg;*.png;*.gif;*.bmp) | *.jpg;*.jpeg;*.png;*.gif;*.bmp";
+            if ((bool)!dialog.ShowDialog()) // nothing selected
+                return;
+
+            _vm = this.DataContext as DetailViewModel;
+            _vm.SelectImageCommand.Execute(dialog.FileName);
         }
     }
 }

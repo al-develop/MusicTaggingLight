@@ -1,19 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using MusicTaggingLight.Models;
 using MusicTaggingLight.UI;
 using Ookii.Dialogs.Wpf;
 
@@ -65,13 +54,7 @@ namespace MusicTaggingLight
                 this.Opacity = 1.0;
         }
 
-        private void dgrFileTags_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
-        {
-            if (e.Column.Header.ToString().ToLower() == "albumcover")
-                e.Cancel = true;
-        }
-
-        private void dgrFileTags_Drop(object sender, DragEventArgs e)
+        private async void dgrFileTags_Drop(object sender, DragEventArgs e)
         {
             vm.ClearCommand.Execute(null);
 
@@ -94,7 +77,7 @@ namespace MusicTaggingLight
             }
 
             if (directories.Count > 0)
-                vm.DragDropDirectory(directories);
+                await vm.DragDropDirectory(directories);
 
             if (files.Count > 0)
                 vm.DragDropFiles(files);
@@ -109,11 +92,6 @@ namespace MusicTaggingLight
         {
             FileAttributes attr = File.GetAttributes(path);
             return (attr & FileAttributes.Directory) == FileAttributes.Directory;
-        }
-
-        private void SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            vm.SelectionChanged(dgrFileTags.SelectedItems);
         }
 
         private void ClearSelection()
@@ -134,6 +112,11 @@ namespace MusicTaggingLight
 
             vm.SetNotification("Only *.mp3 files supported!", "Orange");
             return false;
+        }
+
+        private void DgrFileTags_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            vm.SelectionChanged(dgrFileTags.SelectedItems);
         }
     }
 }

@@ -1,128 +1,63 @@
-﻿using DevExpress.Mvvm;
+﻿using System;
+using System.IO;
+using System.Windows.Input;
+using DevExpress.Mvvm;
 using MusicTaggingLight.Logic;
 using MusicTaggingLight.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
+
 
 namespace MusicTaggingLight.ViewModels
 {
     public class DetailViewModel : ViewModelBase
     {
-		private MainWindowViewModel mwvm;
-		private MusicFileTag mfTag;
+        private MusicFileTag _musicFileTag;
+        private bool _placeholderVisible;
 
-		#region View Properties
-
-		private byte[] _albumCover;
-		private uint _track;
-		private uint _year;
-		private string _album;
-		private string _genre;
-		private string _title;
-		private string _artist;
-		private string _fileName;
-		private string _comment;
-
-
-		public byte[] AlbumCover
-		{
-			get { return _albumCover; }
-			set { SetProperty(ref _albumCover, value, () => AlbumCover); }
-		}
-        public uint Track
-		{
-			get { return _track; }
-			set { SetProperty(ref _track, value, () => Track); }
-		}
-		public uint Year
-		{
-			get { return _year; }
-			set { SetProperty(ref _year, value, () => Year); }
-		}
-		public string Album
-		{
-			get { return _album; }
-			set { SetProperty(ref _album, value, () => Album); }
-		}
-		public string Genre
-		{
-			get { return _genre; }
-			set { SetProperty(ref _genre, value, () => Genre); }
-		}
-		public string Title
-		{
-			get { return _title; }
-			set { SetProperty(ref _title, value, () => Title); }
-		}
-		public string Artist
-		{
-			get { return _artist; }
-			set { SetProperty(ref _artist, value, () => Artist); }
-		}
-		public string FileName
-		{
-			get { return _fileName; }
-			set { SetProperty(ref _fileName, value, () => FileName); }
-		}
-		public string Comment
-		{
-			get { return _comment; }
-			set { SetProperty(ref _comment, value, () => Comment); }
-		}
-        #endregion
-
+        public bool PlaceholderVisible
+        {
+            get { return _placeholderVisible; }
+            set { SetProperty(ref _placeholderVisible, value, () => PlaceholderVisible); }
+        }
+        public MusicFileTag MusicFileTag
+        {
+            get { return _musicFileTag; }
+            set 
+            { 
+                SetProperty(ref _musicFileTag, value, () => MusicFileTag);
+            }
+        }
+       
         #region Commands
-
-		public ICommand SaveTagsCommand { get; set; }
-
+        public ICommand SelectImageCommand { get; set; }
         #endregion
 
-		private void initCommands()
-		{
-			SaveTagsCommand = new DelegateCommand(this.Save);
-		}
+        public DetailViewModel(MusicFileTag current)
+        {
+            if (current != null)
+            {
+                MusicFileTag = current;
+                PlaceholderVisible = MusicFileTag.AlbumCover == null;
+            }
+            else
+                PlaceholderVisible = true;
 
+            initCommands();
+        }
+        private void initCommands()
+        {
+            SelectImageCommand = new DelegateCommand<string>(this.SelectImage);
+        }
 
-        public DetailViewModel(MainWindowViewModel parent)
-		{
-			this.mwvm = parent;
-			initCommands();
-		}
+        private void SelectImage(string filePath)
+        {
+            if (String.IsNullOrEmpty(filePath))
+                return;
 
-		public void SetItemToShow(MusicFileTag fileTag)
-		{
-			mfTag = fileTag;
+            byte[] selectedImage = File.ReadAllBytes(filePath);
+            byte[] resizedImage = ImageResizer.ResizeImage(selectedImage);
 
-			Title = mfTag.Title;
-			Artist = mfTag.Artist;
-			Album = mfTag.Album;
-			Track = mfTag.Track;
-			AlbumCover = mfTag.AlbumCover;
-			Year = mfTag.Year;
-			Genre = mfTag.Genre;
-			FileName = mfTag.FileName;
-			Comment = mfTag.Comment;
-		}
-	
-		public void Save()
-		{
-			
-
-			mfTag.Title = Title;
-			mfTag.Artist = Artist;
-			mfTag.Album = Album;
-			mfTag.Track = Track;
-			mfTag.AlbumCover = AlbumCover;
-			mfTag.Year = Year;
-			mfTag.Genre = Genre;
-			mfTag.FileName = FileName;
-			mfTag.Comment = Comment;
-
-			mwvm.SaveCommand.Execute(mfTag);
-		}
-	}
+            MusicFileTag.AlbumCover = resizedImage;
+            MusicFileTag.HasChanged = true;
+        }
+    }
 }

@@ -1,28 +1,19 @@
-﻿ using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using DevExpress.Mvvm;
-using MusicTaggingLight.Models;
 using MusicTaggingLight.Logic;
-using TagLib;
-using File = TagLib.File;
-using System.Windows;
-using System.Collections;
+using MusicTaggingLight.Models;
 using MusicTaggingLight.ViewModels;
-using MusicTaggingLight.UI;
 
 namespace MusicTaggingLight
 {
     public class MainWindowViewModel : ViewModelBase
     {
         public TaggingLogic Logic { get; set; }
-        public DetailViewModel DetailVM { get; set; }
-        public DetailView DetailView { get; set; }
 
         #region UI Delegates
         public Func<string> SelectRootFolderFunc { get; set; }
@@ -50,16 +41,22 @@ namespace MusicTaggingLight
 
 
         #region View Properties
-        private ObservableCollection<MusicFileTag> _musicFileTags;
-        private List<MusicFileTag> _selectedItems;
-        private MusicFileTag _itemSelected;
+        private ObservableCollection<DetailViewModel> _musicFileTags;
+        private ObservableCollection<DetailViewModel> _selectedItems;
+        private DetailViewModel _selectedItem;
         private string _rootPath;
         private string _fileNamePattern;
         private string _resultPreview;
         private string _notificationText;
         private string _notificationColor;
-        private GridLength _detColWidth;
+        private double _DetailColumnWidth;
+        private bool _detailsVisible;
 
+        public bool DetailsVisible
+        {
+            get { return _detailsVisible; }
+            set { SetProperty(ref _detailsVisible, value, () => DetailsVisible); }
+        }
         public string NotificationColor
         {
             get { return _notificationColor; }
@@ -75,48 +72,32 @@ namespace MusicTaggingLight
             get { return _rootPath; }
             set { SetProperty(ref _rootPath, value, () => RootPath); }
         }
-
         public string FileNamePattern
         {
             get { return _fileNamePattern; }
-            set 
-            { 
-                SetProperty(ref _fileNamePattern, value, () => FileNamePattern); 
-            }
+            set { SetProperty(ref _fileNamePattern, value, () => FileNamePattern); }
         }
         public string ResultPreview
         {
             get { return _resultPreview; }
-            set 
-            { 
-                SetProperty(ref _resultPreview, value, () => ResultPreview); 
-            }
+            set { SetProperty(ref _resultPreview, value, () => ResultPreview); }
         }
-        public List<MusicFileTag> SelectedItems
+        public ObservableCollection<DetailViewModel> SelectedItems
         {
             get { return _selectedItems; }
-            set
-            {
-                SetProperty(ref _selectedItems, value, () => SelectedItems);
-            }
+            set { SetProperty(ref _selectedItems, value, () => SelectedItems); }
         }
-        public MusicFileTag ItemSelected
+        public DetailViewModel SelectedItem
         {
-            get { return _itemSelected; }
-            set
-            {
-                SetProperty(ref _itemSelected, value, () => ItemSelected);
-            }
+            get { return _selectedItem; }
+            set { SetProperty(ref _selectedItem, value, () => SelectedItem); }
         }
-        public GridLength DetColWidth
+        public double DetailColumnWidth
         {
-            get { return _detColWidth; }
-            set
-            {
-                SetProperty(ref _detColWidth, value, () => DetColWidth);
-            }
+            get { return _DetailColumnWidth; }
+            set { SetProperty(ref _DetailColumnWidth, value, () => DetailColumnWidth); }
         }
-        public ObservableCollection<MusicFileTag> MusicFileTags
+        public ObservableCollection<DetailViewModel> MusicFileTags
         {
             get { return _musicFileTags; }
             set { SetProperty(ref _musicFileTags, value, () => MusicFileTags); }
@@ -125,18 +106,17 @@ namespace MusicTaggingLight
 
         public MainWindowViewModel()
         {
-            DetailVM = new DetailViewModel(this);
-            DetailView = new DetailView(DetailVM);
-            MusicFileTags = new ObservableCollection<MusicFileTag>();
-            SelectedItems = new List<MusicFileTag>();
+            MusicFileTags = new ObservableCollection<DetailViewModel>();
+            SelectedItems = new ObservableCollection<DetailViewModel>();
             Logic = new TaggingLogic();
-            DetColWidth = new GridLength(1, GridUnitType.Pixel);
+            DetailColumnWidth = 0;
+            DetailsVisible = false;
             InitCommands();
             SetDefaultNotification();
         }
         private void InitCommands()
         {
-            SelectRootFolderCommand = new DelegateCommand(SelectRootFolder);
+            SelectRootFolderCommand = new AsyncCommand(SelectRootFolder);
             SaveCommand = new DelegateCommand<MusicFileTag>(Save);
             SearchOnlineCommand = new AsyncCommand(SearchOnline);
             TagFromFileNameCommand = new DelegateCommand(this.TagFromFilename);
@@ -148,30 +128,8 @@ namespace MusicTaggingLight
         }
 
 
-        #region DragDrop Handler
-        internal void DragDropFiles(List<string> musicFiles)
-        {
-            Result<List<MusicFileTag>> loadedFiles = Logic.LoadMusicFilesFromList(musicFiles);
-            ProcessLoadedMusicFiles(loadedFiles);
-            SetDefaultNotification();
-        }
-
-        internal void DragDropDirectory(List<string> directories)
-        {
-            Result<List<MusicFileTag>> loadedFiles = new Result<List<MusicFileTag>>(new List<MusicFileTag>());
-            foreach (var dir in directories)
-            {
-                Result<List<MusicFileTag>> filesFromDirectory = Logic.LoadMusicFilesFromRoot(dir);
-                loadedFiles.Data.AddRange(filesFromDirectory.Data);
-            }
-            ProcessLoadedMusicFiles(loadedFiles);
-            SetDefaultNotification();
-        }
-        #endregion DragDrop Handler
-
-
         #region Command Implementation
-        private void SelectRootFolder()
+        private async Task SelectRootFolder()
         {
             this.ClearList();
 
@@ -183,27 +141,36 @@ namespace MusicTaggingLight
             }
 
             SetDefaultNotification();
-
-            Result<List<MusicFileTag>> loadedFiles = Logic.LoadMusicFilesFromRoot(RootPath);
+            Result<List<MusicFileTag>> loadedFiles = await Task.Run(() => Logic.LoadMusicFilesFromRoot(RootPath));
             ProcessLoadedMusicFiles(loadedFiles);
         }
 
         private void Save(MusicFileTag musicFileTag)
         {
-                Result result = Logic.SaveTagToFile(musicFileTag);
-                if (result.Status == Status.Success)
-                    SetNotification("Tags saved", "Green");
-                else
-                    SetNotification(result.Message, "Red");
+            var resultList = new List<Result>();
+            foreach (var tag in MusicFileTags)
+            {
+                //only save changed music files.
+                if (tag.MusicFileTag.HasChanged)
+                { 
+                    resultList.Add(Logic.SaveTagToFile(tag.MusicFileTag));
+                    tag.MusicFileTag.HasChanged = false;
+                }                
+            }
+
+            if (resultList.Any(a => a.Status != Status.Success))
+                SetNotification("Error occured!", "Red"); // TODO: Log Errors
+            else
+                SetNotification("Tags saved", "Green");
         }
 
         private void SaveFromFN()
         {
             CloseFNExtWindowAction.Invoke();
 
-            foreach ( var item in SelectedItems)
+            foreach (var item in SelectedItems)
             {
-                Result result = Logic.SaveTagsExtractedFromFilename(FileNamePattern, item);
+                Result result = Logic.SaveTagsExtractedFromFilename(FileNamePattern, item.MusicFileTag);
                 if (result.Status == Status.Success)
                     SetNotification("Tags saved", "Green");
                 else
@@ -211,34 +178,37 @@ namespace MusicTaggingLight
             }
             SelectedItems.Clear();
         }
-        
+
         private void TagFromFilename()
         {
             if (SelectedItems.Count < 1)
                 return;
             FileNamePattern = "%artist%-%title%";
-            ResultPreview = SelectedItems.FirstOrDefault().FileName;
+            ResultPreview = SelectedItems.FirstOrDefault().MusicFileTag.FileName;
             ShowFNExtWindowAction.Invoke();
         }
 
-        public void SelectionChanged(IList items)
+        public void SelectionChanged(System.Collections.IList items)
         {
+            //DetailColumnWidth = 400;
+            //DetailsVisible = true;
+
             SelectedItems.Clear();
-            foreach(MusicFileTag item in items)
+            foreach (DetailViewModel item in items)
             {
                 SelectedItems.Add(item);
             }
             // if select only one file we show the details
             if (SelectedItems.Count.Equals(1))
             {
-                ItemSelected = SelectedItems.First();
-                DetailVM.SetItemToShow(ItemSelected);
-                DetColWidth = new GridLength(400, GridUnitType.Pixel);
+                DetailColumnWidth = 400;
+                DetailsVisible = true;
             }
             else
             {
-                DetColWidth = new GridLength(1, GridUnitType.Pixel);
-                ItemSelected = null;
+                DetailColumnWidth = 1;
+                DetailsVisible = false;
+                SelectedItem = null;
             }
         }
 
@@ -276,6 +246,28 @@ namespace MusicTaggingLight
 
         #endregion Notification Methods
 
+
+        #region DragDrop Handler
+        internal void DragDropFiles(List<string> musicFiles)
+        {
+            Result<List<MusicFileTag>> loadedFiles = Logic.LoadMusicFilesFromList(musicFiles);
+            ProcessLoadedMusicFiles(loadedFiles);
+            SetDefaultNotification();
+        }
+
+        internal async Task DragDropDirectory(List<string> directories)
+        {
+            Result<List<MusicFileTag>> loadedFiles = new Result<List<MusicFileTag>>(new List<MusicFileTag>());
+            foreach (var dir in directories)
+            {
+                Result<List<MusicFileTag>> filesFromDirectory = await Task.Run(() => Logic.LoadMusicFilesFromRoot(dir));
+                loadedFiles.Data.AddRange(filesFromDirectory.Data);
+            }
+            ProcessLoadedMusicFiles(loadedFiles);
+            SetDefaultNotification();
+        }
+        #endregion DragDrop Handler
+
         private void ProcessLoadedMusicFiles(Result<List<MusicFileTag>> loadedFiles)
         {
             if (loadedFiles.Status != Status.Success)
@@ -284,7 +276,13 @@ namespace MusicTaggingLight
                 return;
             }
 
-            MusicFileTags.AddRange(loadedFiles.Data.Where(w => w.IsValid()));
+            foreach (var tag in loadedFiles.Data)
+            {
+                if (tag.IsValid())
+                {
+                    MusicFileTags.Add(new DetailViewModel(tag));
+                }
+            }
         }
     }
 }

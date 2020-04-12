@@ -1,12 +1,10 @@
-﻿using MusicTaggingLight.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using MusicTaggingLight.Models;
 using TagLib;
 using File = TagLib.File;
 
@@ -34,25 +32,24 @@ namespace MusicTaggingLight.Logic
 
             foreach (var folder in foldersList)
             {
-                var folderContent = Directory.GetFiles(folder, "*.mp3")
+                List<string> folderContent = Directory.GetFiles(folder, "*.mp3")
                     .Where(path => reg.IsMatch(path))
                     .ToList();
 
-                foreach (var file in folderContent)
+                Parallel.ForEach(folderContent, file =>
                 {
                     try
                     {
                         var tagInfo = File.Create(file);
-                        musicFileTags.Add(MusicFileTag.ConvertTagToMusicFileTag(tagInfo.Tag, tagInfo.Name));
-                    } 
+                        var musicFileTag = new MusicFileTag();
+                        musicFileTags.Add(musicFileTag.ConvertTagToMusicFileTag(tagInfo.Tag, tagInfo.Name));
+                    }
                     catch (CorruptFileException e)
                     {
-                        return HandleError(file, e);
+                        HandleError(file, e);
                     }
-                }
-
+                });
             }
-
             return new Result<List<MusicFileTag>>(musicFileTags, Status.Success);
         }
 
@@ -69,7 +66,8 @@ namespace MusicTaggingLight.Logic
                         continue;
 
                     var tagInfo = File.Create(file);
-                    musicFileTags.Add(MusicFileTag.ConvertTagToMusicFileTag(tagInfo.Tag, tagInfo.Name));
+                    var musicFileTag = new MusicFileTag();
+                    musicFileTags.Add(musicFileTag.ConvertTagToMusicFileTag(tagInfo.Tag, tagInfo.Name));
                 }
                 catch (CorruptFileException e)
                 {
@@ -92,13 +90,13 @@ namespace MusicTaggingLight.Logic
                 return new List<string>();
 
             IEnumerable<string> subfolders = Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories);
-                                                      //.Where(f => !Directory.EnumerateDirectories(f).Any());
+            //.Where(f => !Directory.EnumerateDirectories(f).Any());
             return subfolders;
         }
 
         public Result SaveTagToFile(MusicFileTag tag)
         {
-            if (String.IsNullOrEmpty(tag.FilePath))
+            if (tag == null || String.IsNullOrEmpty(tag.FilePath))
                 return new Result("No FilePath specified", Status.Error);
 
             File tagInfo = MusicFileTag.ConvertMusicFileTagToTag(tag);
@@ -107,7 +105,7 @@ namespace MusicTaggingLight.Logic
             return new Result("", Status.Success);
         }
 
-        
+
         private void RenameFile(MusicFileTag tag)
         {
             string CurrentFName = System.IO.Path.GetFileNameWithoutExtension(tag.FilePath);

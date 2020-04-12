@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DevExpress.Mvvm;
 using TagLib;
 
@@ -10,6 +7,8 @@ namespace MusicTaggingLight.Models
 {
     public class MusicFileTag : BindableBase
     {
+        public bool HasChanged { get; set; }
+
         private string _artist;
         private string _album;
         private string _genre;
@@ -36,7 +35,11 @@ namespace MusicTaggingLight.Models
         public uint Track
         {
             get { return _track; }
-            set { SetProperty(ref _track, value, () => Track); }
+            set
+            {
+                SetProperty(ref _track, value, () => Track);
+                HasChanged = true;
+            }
         }
 
         /// <summary>
@@ -45,7 +48,11 @@ namespace MusicTaggingLight.Models
         public string Artist
         {
             get { return _artist; }
-            set { SetProperty(ref _artist, value, () => Artist); }
+            set
+            {
+                SetProperty(ref _artist, value, () => Artist);
+                HasChanged = true;
+            }
         }
 
         /// <summary>
@@ -54,7 +61,11 @@ namespace MusicTaggingLight.Models
         public string Title
         {
             get { return _title; }
-            set { SetProperty(ref _title, value, () => Title); }
+            set
+            {
+                SetProperty(ref _title, value, () => Title);
+                HasChanged = true;
+            }
         }
 
         /// <summary>
@@ -63,7 +74,11 @@ namespace MusicTaggingLight.Models
         public string Album
         {
             get { return _album; }
-            set { SetProperty(ref _album, value, () => Album); }
+            set
+            {
+                SetProperty(ref _album, value, () => Album);
+                HasChanged = true;
+            }
         }
 
         /// <summary>
@@ -72,7 +87,11 @@ namespace MusicTaggingLight.Models
         public string Genre
         {
             get { return _genre; }
-            set { SetProperty(ref _genre, value, () => Genre); }
+            set
+            {
+                SetProperty(ref _genre, value, () => Genre);
+                HasChanged = true;
+            }
         }
 
         /// <summary>
@@ -81,7 +100,11 @@ namespace MusicTaggingLight.Models
         public uint Year
         {
             get { return _year; }
-            set { SetProperty(ref _year, value, () => Year); }
+            set
+            {
+                SetProperty(ref _year, value, () => Year);
+                HasChanged = true;
+            }
         }
 
         /// <summary>
@@ -90,7 +113,11 @@ namespace MusicTaggingLight.Models
         public string Comment
         {
             get { return _comment; }
-            set { SetProperty(ref _comment, value, () => Comment); }
+            set
+            {
+                SetProperty(ref _comment, value, () => Comment);
+                HasChanged = true;
+            }
         }
 
         /// <summary>
@@ -99,16 +126,24 @@ namespace MusicTaggingLight.Models
         public string FilePath
         {
             get { return _filePath; }
-            set { SetProperty(ref _filePath, value, () => FilePath); }
+            set
+            {
+                SetProperty(ref _filePath, value, () => FilePath);
+                HasChanged = true;
+            }
         }
-        
+
         /// <summary>
         /// Contains the file name without path.
         /// </summary>
         public string FileName
         {
             get { return _fileName; }
-            set { SetProperty(ref _fileName, value, () => FileName); }
+            set
+            {
+                SetProperty(ref _fileName, value, () => FileName);
+                HasChanged = true;
+            }
         }
 
 
@@ -136,7 +171,7 @@ namespace MusicTaggingLight.Models
         /// <param name="tag">The ID3 Tag, which has to be converted</param>
         /// <param name="filePath">The path to the location on the drive to the current file</param>
         /// <returns>The converted MusicFileTag object</returns>
-        public static MusicFileTag ConvertTagToMusicFileTag(Tag tag, string filePath)
+        public static MusicFileTag ConvertToMusicFileTag(Tag tag, string filePath)
         {
             var tmp = new MusicFileTag();
             tmp.Artist = tag.FirstPerformer;
@@ -145,12 +180,31 @@ namespace MusicTaggingLight.Models
             tmp.Year = tag.Year;
             tmp.Title = tag.Title;
             tmp.Comment = tag.Comment;
-            if(tag.Pictures.Length >= 1) 
+            if (tag.Pictures.Length >= 1)
                 tmp.AlbumCover = tag.Pictures?.First().Data.Data;
             tmp.Track = tag.Track;
             tmp.FilePath = filePath;
             tmp.FileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
+
             return tmp;
+        }
+
+        public MusicFileTag ConvertTagToMusicFileTag(Tag tag, string filePath)
+        {
+            Artist = tag.FirstPerformer;
+            Album = tag.Album;
+            Genre = tag.FirstGenre;
+            Year = tag.Year;
+            Title = tag.Title;
+            Comment = tag.Comment;
+            if (tag.Pictures.Length >= 1)
+                AlbumCover = tag.Pictures?.First().Data.Data;
+            Track = tag.Track;
+            FilePath = filePath;
+            FileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
+
+            HasChanged = false;
+            return this;
         }
 
         public static File ConvertMusicFileTagToTag(MusicFileTag musicTag)
@@ -158,7 +212,7 @@ namespace MusicTaggingLight.Models
             File tagInfo = TagLib.File.Create(musicTag.FilePath);
 
             //tagInfo.Tag.Clear();
-            tagInfo.Tag.Performers = new string[] { musicTag.Artist ?? ""};       // Sets the FirstPerformer
+            tagInfo.Tag.Performers = new string[] { musicTag.Artist ?? "" };       // Sets the FirstPerformer
             tagInfo.Tag.AlbumArtists = new string[] { musicTag.Artist ?? "" };    // Sets the FirstArtist
             tagInfo.Tag.Genres = new string[] { musicTag.Genre ?? "" };           // Sets the FirstGenre
             tagInfo.Tag.Album = musicTag.Album;
@@ -166,6 +220,11 @@ namespace MusicTaggingLight.Models
             tagInfo.Tag.Comment = musicTag.Comment;
             tagInfo.Tag.Year = musicTag.Year;
             tagInfo.Tag.Track = musicTag.Track;
+
+            // Convert byte[] to IPicture[] to save AlbumCover
+            // We could use ByteVector.FromPath(""); but since we need the Byte Array anyway for displaying Covers on UI,
+            // we can stick to that and save ourselves the work to keep the Path to the image in store
+            tagInfo.Tag.Pictures = new IPicture[] { new Picture(new ByteVector(musicTag.AlbumCover)) };
             
             return tagInfo;
         }

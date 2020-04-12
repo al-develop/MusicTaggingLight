@@ -60,6 +60,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -97,8 +98,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converter\DoubleToGridLenghtConverter.cs" />
+    <Compile Include="Logic\ImageResizer.cs" />
+    <Compile Include="Logic\Logging.cs" />
     <Compile Include="Logic\ObservableCollectionExtensions.cs" />
+    <Compile Include="Logic\SettingsLogic.cs" />
     <Compile Include="Models\Result.cs" />
+    <Compile Include="Models\Settings.cs" />
     <Compile Include="UI\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
@@ -207,6 +213,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\placeholder.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\settings.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -135,7 +135,7 @@
                    HorizontalAlignment="Left"
                    VerticalAlignment="Top" />
         <TextBlock TextWrapping="Wrap"
-                   Text="Exit"
+                   Text="Unselect"
                    Margin="200,183,0,0"
                    HorizontalAlignment="Left"
                    VerticalAlignment="Top" />
